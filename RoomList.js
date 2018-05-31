@@ -1,17 +1,50 @@
 import React, { Component } from 'react';
+
+import ICAL from 'ical.js';
 import { SectionList, StyleSheet, Text, View } from 'react-native';
 
 export default class RoomList extends Component {
+
+
+
+
+  getSections(events){
+    const groupRooms = {
+      F: "Fysikhuset",
+      M: "Maskinhuset",
+      E: "EDIT-huset",
+      K: "Kemihuset",
+      S: "SB-huset",
+      1: "Blabla"
+    }
+    let result = [];
+    Object.keys(events).forEach(key => {
+      console.log(events[key]);
+      let obj = {
+        title: groupRooms[key],
+        data: events[key].sort()
+      }
+      result.push(obj);
+    });
+    return result;
+  }
+
+
   render() {
     const { events } = this.props.navigation.state.params;
-    const locations = events.map(e => e.getFirstPropertyValue('location'));
+
+    const sortedEvents = Object.keys(events).reduce((obj,e) => {
+      const firstLetter = e.substring(0,1);
+      console.log(e)
+      const titleString = e + " " + events[e]['freeFrom'] + " - " + events[e]['freeUntil'];
+      !obj[firstLetter] ? obj[firstLetter] = [titleString] : obj[firstLetter].push(titleString);
+      return obj;
+    },{});
+
     return (
       <View style={styles.container}>
         <SectionList
-          sections={[
-            {title: 'D', data: locations},
-            {title: 'J', data: ['Jackson', 'James', 'Jillian', 'Jimmy', 'Joel', 'John', 'Julie']},
-          ]}
+          sections={this.getSections(sortedEvents)}
           renderItem={({item}) => <Text style={styles.item}>{item}</Text>}
           renderSectionHeader={({section}) => <Text style={styles.sectionHeader}>{section.title}</Text>}
           keyExtractor={(item, index) => index}
@@ -20,13 +53,6 @@ export default class RoomList extends Component {
     );
   }
 }
-
-/*
-        {events.map(e => 
-      (<Text key={e.getFirstPropertyValue('uid')}>{`${e.getFirstPropertyValue('location')} ${e.getFirstPropertyValue('dtstart')}`}</Text>)
-      )}
-
-*/
 
 const styles = StyleSheet.create({
   container: {

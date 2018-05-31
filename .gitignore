@@ -23,7 +23,7 @@ yarn.lock
 package-lock.json
 db-config.js
 settings.json
-
+.DS_Store
 
 ### VisualStudioCode ###
 .vscode/*
