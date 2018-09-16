@@ -9,8 +9,7 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 
 async function getDataFromUrlAsync() {
   try {
-    let response = await fetch('https://se.timeedit.net/web/chalmers/db1/public/ri663Q40Y88Z55Q5Y484X765y5Z854Y613Y7361Q547146XX7855538655411XY63745658X3Y5Y816X4368458X7465175357X16Y57156Y5336438X563Y5774Y4133557X15Y16X5366X67558334Y13Y346XX557196374Y515453X75613364351673X231YY5X7544X475398Y614537154Y4656X11Y345X35XY5317757444Y2165X4519666438XY614950X36336806XY26930Y7815Y1X5506939569931YY56X0019X39586366YX51706136501X9Y096995YX636Y3X5100914651X06315161Y059665Y16Y9516X05X63364819Y4911X55315Y6X25193Y1164553XY64X1436X59561Y9935511051661119XY4325Y1194X6X56Y03435415032Y663501196YX6581YX533100505Y0X7158X1134165266X61964Y39Y5671305X83X00Y2266581Y054X786263256Y813Y3361Y502108XX6256631756011XY83605869X3Y6Y218X0322062X6085165338X18Y61168Y5725032X583Y6620Y0173452X15Y15X5386X82667730Y18Y308XX652188320Y615057X26815780769823X131YY6X2507X025343Y818632150Y8858X21Y376X35XY6312662700Y0185X0512266036XY018350X38376805XY85880Y2716Y1X5506632662631YY55X5016X32595356YX51806136501X6Y067225YX536Y3X5600214656X15326151Y022665Y55Y2563X05X63320610Y0041X55356Y2X06103Y5150563XY20X1032X67522Y0035661051629220XY0386Y5150X5X58Y03035555031Y623601158YX3560YX533174515Y4X0155X963415516QX61154Y31Y500137876BtB1340Q3CZZ0C00C7Ed5516Z6D94t1725Q32Qn3A6F5C12ACAD.ics');
-    let responseString = await response.text();
+    let response = await fetch('https://cloud.timeedit.net/chalmers/web/public/ri663Q40Y88Z55Q5Y484X765y5Z854Y613Y7361Q547146XX2755238555411XY63745657X3Y5Y816X4378458X7465175386X16Y58156Y5366438X563Y5674Y4133557X15Y15X5366X67557334Y13Y346XX557186374Y515453X75612364359673X131YY5X7544X475387Y613537154Y4656X91Y345X35XY5317357444Y1165X3519765438XY614950X36326446XY36620Y7815Y1X5506839069931YY56X4019X39576366YX51606136501X9Y095995YX636Y3X6100916651X86396161Y009165Y66Y9595X05X63310415Y0921X55366Y6X15103Y6114553XY14X1036X61512Y0935511451674169XY4385Y1194X6X56Y90435565033Y563501196YX7586YX633120526Y0X6151X4830165286X81260Y32Y5661303X83X08Y2276581Y057X686063256Y813Y6361Y502108XX6256932356011XY83205864X3Y6Y118X0372061X6085125355X18Y62168Y5776032X583Y6920Y0173752X15Y18X5387X82661730Y17Y308XX652158320Y615058X26814880766823X331YY6X2508X025370Y817632150Y7853X81Y386X35XY6312260800Y8185X7512566036XY516250X32306605XY55260Y5616Y1X5506632962631YY55X8016X32535356YX51206136501X6Y061225YX536Y3X0500210655X40326151Y072665Y50Y2564X05X63320210Y0091X55356Y2X86103Y5150563XY20X1032X61520Y0035551451529669XY4326Y1150X1X58Y93035515938Y563641158YX3560YX533184515Y4X0155X963415516QX61154Y31Y500137776Ft24310Q3BZZ7E08937d5942Z6130t9791Q3BQn9178D04B889.ics');  let responseString = await response.text();
     return responseString;
   } catch (error) {
     console.error(error);
@@ -25,25 +24,29 @@ async function parseIcal(){
   return vevents;
 }
 
+const getDateWithoutTime = (date) => {
+  let d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
 
 class App extends React.Component {
 
   constructor(props) {
     super(props);
     this.state = {
+      language: 'EN',
       loaded: false,
       events: [],
       location: 1,
       isTimePickerVisible: false,
       isDatePickerVisible: false,
       date: new Date(),
-      time: new Date(),
     }
   }
 
   componentDidMount() {
-    let res = parseIcal()
-      .then(events => {
+    parseIcal().then(events => {
         this.setState({
           events
         })
@@ -65,12 +68,14 @@ class App extends React.Component {
   getEventsByDay(events, date) {
     const result = events.reduce((arr, e) => {
       const eventDate = new Date(e.getFirstPropertyValue('dtstart'));
-      eventDate.setUTCHours(0,0,0,0);
-      if (eventDate.toString() === date.toString()) arr.push(e);
+      if (getDateWithoutTime(eventDate).valueOf() === getDateWithoutTime(date).valueOf()) 
+        arr.push(e);
+        
       return arr;
     }, []);
     return result;
   }
+
 
   mapEventsByLocation(events) {
     let roomArr = {};
@@ -80,16 +85,19 @@ class App extends React.Component {
     
     const mappedEvents = events.reduce((obj,e) => {
       const loc = e.getFirstPropertyValue('location');
-      !obj[loc] ? obj[loc] = [e] : obj[loc].push(e);
+      let multiLoc = loc.replace('\\', '');
+      let multiArr = multiLoc.split(',').map(str => str.trim());
+      for (const location of multiArr) {
+        if (obj[location] !== undefined)
+          obj[location] === null ? obj[location] = [e] : obj[location].push(e);
+      }
       return obj;
-    },roomArr);
-
+    }, roomArr);
     return mappedEvents;
   }
 
   getAvailableRooms(roomEvents, time) {
     Object.keys(roomEvents).forEach(key => {
-
       if(roomEvents[key]){
         const events = roomEvents[key];
         let bookings = [];
@@ -104,7 +112,7 @@ class App extends React.Component {
             delete roomEvents[key];
             break;
           }
-          roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings, key);
+          roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
         }
       } else {
         roomEvents[key] = this.setFreeInterval(roomEvents[key]);
@@ -119,33 +127,40 @@ class App extends React.Component {
     return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
   }
 
-  setFreeInterval(events, time, bookings, key) {
+  setFreeInterval(events, time, bookings) {
     if(events) {
+      //If time is before all bookings
+      if(bookings[0][0] > time) {
+          return {
+            freeFrom: '00:00',
+            freeUntil: this.setTimeFormat(bookings[0][0])
+          };
+      } 
+      // If time is after all bookings
+      else if(bookings[bookings.length-1][1] <= time) {
+        return {
+          freeFrom: this.setTimeFormat(bookings[bookings.length-1][1]),
+          freeUntil: '24:00'
+        };
+      }
+
+      //If time is between two bookings
       for(let i = 0; i < bookings.length; i++) {
-        if(bookings[i][0] > time) {
-          events = {
-            freeFrom: i > 0 ? this.setTimeFormat(bookings[i-1][1]) : '00:00',
-            freeUntil: this.setTimeFormat(bookings[i][0])
-          };
-        } else if(bookings[i][1] <= time) {
-          events = {
-            freeFrom: this.setTimeFormat(bookings[i][1]),
-            freeUntil: i < bookings.length - 1 ? this.setTimeFormat(bookings[i+1][0]) : '24:00'
-          };
-        } else if(bookings[i][1] <= time && bookings[i+1][0] > time) {        
-          events = {
-            freeFrom: this.setTimeFormat(bookings[i][1]),
-            freeUntil: this.setTimeFormat(bookings[i+1][0])
-          };
+        if (bookings.length > 1) {
+          if(bookings[i][1] <= time && bookings[i+1][0] > time) {  
+            return {
+              freeFrom: this.setTimeFormat(bookings[i][1]),
+              freeUntil: this.setTimeFormat(bookings[i+1][0])
+            };
+          }
         }
       }
-    } else {
-      events = {
-        freeFrom: '00:00',
-        freeUntil: '24:00'
-      };
     }
-    return events;
+
+    return {
+      freeFrom: '00:00',
+      freeUntil: '24:00'
+    };
   }
 
   _showTimePicker = () => this.setState({ isTimePickerVisible: true });
@@ -153,7 +168,8 @@ class App extends React.Component {
   _hideTimePicker = () => this.setState({ isTimePickerVisible: false });
  
   _handleTimePicked = (time) => {
-    this.setState({ time: time });
+    this.state.date.setHours(time.getHours())
+    this.state.date.setMinutes(time.getMinutes())
     this._hideTimePicker();
   };
 
@@ -162,22 +178,17 @@ class App extends React.Component {
   _hideDatePicker = () => this.setState({ isDatePickerVisible: false });
  
   _handleDatePicked = (date) => {
-    console.log(date)
-    date.setHours(this.state.time.getHours(), this.state.time.getMinutes())
-    console.log(date)
     this.setState({ date: date });
     this._hideDatePicker();
   };
 
   formatDate(date){
-    return date.getDate() + " " + Months[date.getMonth()];
+    return date.getDate() + " " + Months[this.state.language][date.getMonth()];
   }
 
   formatTime(time){
      return (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
   }
-
-
 
   render() {
     const { events } = this.state;
@@ -198,10 +209,10 @@ class App extends React.Component {
       <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <TouchableOpacity onPress={() => this.setState({ location: 1 })} activeOpacity={1} style={this.state.location === 1 ? styles.buttonActive :  styles.buttonInactive}>
-          <Text style={styles.text}>JOHANNEBERG</Text>
+          <Text style={styles.text}>{Locations[0]}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => this.setState({ location: 2 })} activeOpacity={1} style={this.state.location === 2 ? styles.buttonActive :  styles.buttonInactive}>
-          <Text style={styles.text}>LINDHOLMEN</Text>
+          <Text style={styles.text}>{Locations[1]}</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
@@ -216,24 +227,22 @@ class App extends React.Component {
             onConfirm={this._handleDatePicked}
             onCancel={this._hideDatePicker}
             datePickerModeAndroid={'default'}
-            style="@style/DialogTheme"
           />
         </View>
       <TouchableOpacity onPress={this._showTimePicker} activeOpacity={1} style={styles.buttonActive}>
-         <Text style={styles.text}>{this.formatTime(this.state.time)}</Text>
+         <Text style={styles.text}>{this.formatTime(this.state.date)}</Text>
         </TouchableOpacity>
         <DateTimePicker
           mode='time'
-          date={this.state.time}
+          date={this.state.date}
           isVisible={this.state.isTimePickerVisible}
           onConfirm={this._handleTimePicked}
           onCancel={this._hideTimePicker}
           datePickerModeAndroid={'default'}
-          style="@style/DialogTheme"
         />
       </View>
-      <TouchableOpacity onPress={() => navigate('Table', {events: availableRooms})} style={styles.buttonActive}>
-        <Text style={styles.text}>VISA LEDIGA GRUPPRUM</Text>
+      <TouchableOpacity onPress={() => navigate('Table', {events: availableRooms, language: this.state.language})} style={styles.buttonActive}>
+        <Text style={styles.text}>{groupRoomTitle[this.state.language]}</Text>
       </TouchableOpacity>
     
       </View>
@@ -288,7 +297,18 @@ const Rooms = {
   2: ['Jupiter123', 'Jupiter144', 'Jupiter146', 'Jupiter147', 'Svea 218', 'Svea 238', 'Svea227', 'Svea229A', 'Svea229B', 'Svea229C'],
   }
 
-const Months = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'];
+const Months = {
+  SV: ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'],
+  EN: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+}
+
+const Locations = ['JOHANNEBERG', 'LINDHOLMEN'];
+
+const groupRoomTitle = {
+  SV: "VISA LEDIGA GRUPPRUM",
+  EN: "SHOW AVAILABLE ROOMS",
+}
+
 const HomeScreen = createStackNavigator({
   Home: { screen: App },
   Table: { screen: RoomList },
@@ -296,6 +316,7 @@ const HomeScreen = createStackNavigator({
 {
   initialRouteName: 'Home',
 });
+
 
 export default HomeScreen;
 

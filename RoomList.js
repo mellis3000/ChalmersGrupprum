@@ -4,16 +4,14 @@ import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity } from 're
 
 class RoomList extends Component {
 
-  getSections(events) {
-    const groupRooms = {
-      F: "FYSIKHUSET",
-      M1: "MASKINHUSET",
-      EG: "EDIT-HUSET",
-      KG: "KEMIHUSET",
-      SB: "SB-HUSET",
-      Sv: "SVEA",
-      Ju: "JUPITER"
+  constructor(props) {
+    super(props);
+    this.state = {
+      language: 'SV',
     }
+  }
+
+  getSections(events) {
     let result = [];
     Object.keys(events).forEach(key => {
       let obj = {
@@ -38,6 +36,8 @@ class RoomList extends Component {
 
   render() {
     const { events } = this.props.navigation.state.params;
+    const { language } = this.props.navigation.state.params;
+    if (language !== null && language !== "") this.state.language = language;
     const sortedEvents = this.sortEvents(events);
 
     return (
@@ -48,7 +48,7 @@ class RoomList extends Component {
           renderSectionHeader={({section}) => 
           <View style={styles.headers}>
             <Text style={styles.sectionHeader}>{section.title}</Text>
-            <Text style={styles.sectionHeader}>LEDIGT</Text>
+            <Text style={[styles.sectionHeader, styles.sectionHeaderIsFree]}>{timeHeader[language]}</Text>
           </View>}
           keyExtractor={(item, index) => index}
         />
@@ -58,7 +58,7 @@ class RoomList extends Component {
 }
 
 const redirectToBooking = () => {
-
+  // const url = 'https://cloud.timeedit.net/chalmers/web/b1/ri1Q5008.html';
 }
 
 const ListItem = AsPure(({item}) => {
@@ -67,7 +67,7 @@ const ListItem = AsPure(({item}) => {
   <TouchableOpacity style={styles.item}>
     <Text style={styles.roomText}>{item.split(' ')[0]}</Text>
     <View style={styles.time}>
-    <Text style={styles.timeText}>{`${item.split(' ')[1]} ${item.split(' ')[2]} ${item.split(' ')[3]}`}</Text>
+      <Text style={styles.timeText}>{`${item.split(' ')[1]} ${item.split(' ')[2]} ${item.split(' ')[3]}`}</Text>
     </View>
     <View style={styles.bookingButton}>
       <Image
@@ -81,29 +81,34 @@ const ListItem = AsPure(({item}) => {
 const styles = StyleSheet.create({
   container: {
    flex: 1,
-   paddingTop: 22,
    backgroundColor: '#fff',
   },
   headers: {
     flex: 1,
+    paddingTop: 15,
+    paddingBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginRight: '30%',
-    marginLeft: 5
+    borderColor: '#e0e2e5',
+    borderBottomWidth: 0.5,
   },
   sectionHeader: {
-    padding: 10,
     fontSize: 16,
+    flexGrow: 1,
     fontWeight: 'bold',
     fontFamily: 'latoBold',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    marginLeft: 10,
+  },
+  sectionHeaderIsFree: {
+    flexGrow: 0,
+    width: 200,
+    marginLeft: 0
   },
   item: {
-    paddingLeft: 10,
     flexDirection: 'row',
     borderColor: '#e0e2e5',
-    borderWidth: 0.5,
-    justifyContent: 'flex-end'
+    borderBottomWidth: 0.5,
   },
   roomText: {
     flex: 1,
@@ -111,21 +116,22 @@ const styles = StyleSheet.create({
     fontFamily: 'latoLight',
     paddingTop: 15,
     paddingBottom: 15,
-    marginLeft: 5,
+    marginLeft: 10,
   },
   time: {
-    flex: 2,
+    flexGrow: 0,
+    width: 160,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     paddingTop: 15,
     paddingBottom: 15,
   },
   bookingButton: {
-    flex: 1,
+    width: 40,
+    flexGrow: 0,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10
   },
   bookingIcon: {
     height: 25,
@@ -139,3 +145,18 @@ const styles = StyleSheet.create({
 })
 
 export default RoomList;
+
+const groupRooms = {
+    F: "FYSIK",
+    M1: "MASKIN",
+    EG: "EDIT",
+    KG: "KEMI",
+    SB: "SB",
+    Sv: "SVEA",
+    Ju: "JUPITER"
+}
+
+const timeHeader = {
+  SV: "LEDIGT",
+  EN: "AVAILABLE"
+}
