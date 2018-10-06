@@ -1,5 +1,9 @@
 {
   "expo": {
-    "sdkVersion": "27.0.0"
+    "sdkVersion": "27.0.0",
+    "name": "ChalmersBookingApp",
+    "slug": "chalmersbookingapp",
+    "version": "0.1.0",
+    "description": ""
   }
 }

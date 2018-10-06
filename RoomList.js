@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AsPure from './as-pure';
-import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, WebView, BackHandler, NavigatorIOS } from 'react-native';
+
 
 class RoomList extends Component {
 
@@ -8,8 +9,10 @@ class RoomList extends Component {
     super(props);
     this.state = {
       language: 'SV',
+      showWebView: false
     }
   }
+
 
   getSections(events) {
     let result = [];
@@ -34,48 +37,48 @@ class RoomList extends Component {
     },{});
   }
 
+  
+
   render() {
+
+    const { navigate } = this.props.navigation;
     const { events } = this.props.navigation.state.params;
     const { language } = this.props.navigation.state.params;
     if (language !== null && language !== "") this.state.language = language;
     const sortedEvents = this.sortEvents(events);
-
+    
     return (
       <View style={styles.container}>
         <SectionList
-          sections={this.getSections(sortedEvents)}
-          renderItem={({item}) => <ListItem item={item}/>}
-          renderSectionHeader={({section}) => 
-          <View style={styles.headers}>
-            <Text style={styles.sectionHeader}>{section.title}</Text>
-            <Text style={[styles.sectionHeader, styles.sectionHeaderIsFree]}>{timeHeader[language]}</Text>
-          </View>}
-          keyExtractor={(item, index) => index}
-        />
+        sections={this.getSections(sortedEvents)}
+        renderItem={({item}) => (<TouchableOpacity onPress={() => navigate('BookingWeb') }><ListItem item={item} /></TouchableOpacity>)}
+        renderSectionHeader={({section}) => 
+        <View style={styles.headers}>
+          <Text style={styles.sectionHeader}>{section.title}</Text>
+          <Text style={[styles.sectionHeader, styles.sectionHeaderIsFree]}>{timeHeader[language]}</Text>
+        </View>}
+        keyExtractor={(item, index) => index}
+      />
       </View>
     );
   }
 }
 
-const redirectToBooking = () => {
-  // const url = 'https://cloud.timeedit.net/chalmers/web/b1/ri1Q5008.html';
-}
 
 const ListItem = AsPure(({item}) => {
-
   return (
-  <TouchableOpacity style={styles.item}>
+  <View style={styles.item}>
     <Text style={styles.roomText}>{item.split(' ')[0]}</Text>
     <View style={styles.time}>
       <Text style={styles.timeText}>{`${item.split(' ')[1]} ${item.split(' ')[2]} ${item.split(' ')[3]}`}</Text>
     </View>
     <View style={styles.bookingButton}>
-      <Image
-          source={require('./res/img/right-arrow.png')}
-          style={styles.bookingIcon}
-      />
+        <Image
+              source={require('./res/img/right-arrow.png')}
+              style={styles.bookingIcon}
+          />
     </View>
-  </TouchableOpacity>);
+  </View>);
 })
 
 const styles = StyleSheet.create({

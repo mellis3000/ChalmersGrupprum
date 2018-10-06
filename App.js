@@ -2,27 +2,41 @@ import React from 'react';
 import ICAL from 'ical.js';
 import { AppLoading, Font } from 'expo';
 import RoomList from './RoomList.js';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Platform , NativeModules} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import BookingWebView from './BookingWebView.js';
+import { DangerZone } from 'expo';
+const { Localization } = DangerZone;
 
-
-async function getDataFromUrlAsync() {
+getDataFromUrlAsync = async () => {
   try {
-    let response = await fetch('https://cloud.timeedit.net/chalmers/web/public/ri663Q40Y88Z55Q5Y484X765y5Z854Y613Y7361Q547146XX2755238555411XY63745657X3Y5Y816X4378458X7465175386X16Y58156Y5366438X563Y5674Y4133557X15Y15X5366X67557334Y13Y346XX557186374Y515453X75612364359673X131YY5X7544X475387Y613537154Y4656X91Y345X35XY5317357444Y1165X3519765438XY614950X36326446XY36620Y7815Y1X5506839069931YY56X4019X39576366YX51606136501X9Y095995YX636Y3X6100916651X86396161Y009165Y66Y9595X05X63310415Y0921X55366Y6X15103Y6114553XY14X1036X61512Y0935511451674169XY4385Y1194X6X56Y90435565033Y563501196YX7586YX633120526Y0X6151X4830165286X81260Y32Y5661303X83X08Y2276581Y057X686063256Y813Y6361Y502108XX6256932356011XY83205864X3Y6Y118X0372061X6085125355X18Y62168Y5776032X583Y6920Y0173752X15Y18X5387X82661730Y17Y308XX652158320Y615058X26814880766823X331YY6X2508X025370Y817632150Y7853X81Y386X35XY6312260800Y8185X7512566036XY516250X32306605XY55260Y5616Y1X5506632962631YY55X8016X32535356YX51206136501X6Y061225YX536Y3X0500210655X40326151Y072665Y50Y2564X05X63320210Y0091X55356Y2X86103Y5150563XY20X1032X61520Y0035551451529669XY4326Y1150X1X58Y93035515938Y563641158YX3560YX533184515Y4X0155X963415516QX61154Y31Y500137776Ft24310Q3BZZ7E08937d5942Z6130t9791Q3BQn9178D04B889.ics');  let responseString = await response.text();
+    let response = await fetch('https://cloud.timeedit.net/chalmers/web/public/ri663Q40Y88Z55Q5Y484X765y5Z854Y613Y7361Q547146XX2755238555411XY63745657X3Y5Y816X4378458X7465175386X16Y58156Y5366438X563Y5674Y4133557X15Y15X5366X67557334Y13Y346XX557186374Y515453X75612364359673X131YY5X7544X475387Y613537154Y4656X91Y345X35XY5317357444Y1165X3519765438XY614950X36326446XY36620Y7815Y1X5506839069931YY56X4019X39576366YX51606136501X9Y095995YX636Y3X6100916651X86396161Y009165Y66Y9595X05X63310415Y0921X55366Y6X15103Y6114553XY14X1036X61512Y0935511451674169XY4385Y1194X6X56Y90435565033Y563501196YX7586YX633120526Y0X6151X4830165286X81260Y32Y5661303X83X08Y2276581Y057X686063256Y813Y6361Y502108XX6256932356011XY83205864X3Y6Y118X0372061X6085125355X18Y62168Y5776032X583Y6920Y0173752X15Y18X5387X82661730Y17Y308XX652158320Y615058X26814880766823X331YY6X2508X025370Y817632150Y7853X81Y386X35XY6312260800Y8185X7512566036XY516250X32306605XY55260Y5616Y1X5506632962631YY55X8016X32535356YX51206136501X6Y061225YX536Y3X0500210655X40326151Y072665Y50Y2564X05X63320210Y0091X55356Y2X86103Y5150563XY20X1032X61520Y0035551451529669XY4326Y1150X1X58Y93035515938Y563641158YX3560YX533184515Y4X0155X963415516QX61154Y31Y500137776Ft24310Q3BZZ7E08937d5942Z6130t9791Q3BQn9178D04B889.ics');  
+    let responseString = await response.text();
     return responseString;
   } catch (error) {
     console.error(error);
   }
 }
 
-async function parseIcal(){
+getLocale = async () => {
+  return await Localization.getCurrentLocaleAsync();
+}
+
+parseIcal = async () => {
   let result = await getDataFromUrlAsync();
   jcalData = ICAL.parse(result);
   comp = new ICAL.Component(jcalData);
   vevents = comp.getAllSubcomponents("vevent");
   return vevents;
 }
+
+loadAssetsAsync = async () => {
+  return await Expo.Font.loadAsync({
+    latoBold: require('./res/assets/fonts/LatoBlack.ttf'),
+    latoLight: require('./res/assets/fonts/LatoLight.ttf'),
+  });
+};
 
 const getDateWithoutTime = (date) => {
   let d = new Date(date);
@@ -35,7 +49,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      language: 'EN',
+      language: 'en',
       loaded: false,
       events: [],
       location: 1,
@@ -46,24 +60,10 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    parseIcal().then(events => {
-        this.setState({
-          events
-        })
-      });
+    parseIcal().then(events => this.setState({ events }) ); 
+    getLocale().then(language => this.setState({ language: language.substring(0, 2) }));   
+    loadAssetsAsync().then(res =>  this.setState({ loaded: true }));
   }
-
-  componentWillMount() {
-    this._loadAssetsAsync();
-  }
-
-  _loadAssetsAsync = async () => {
-    await Expo.Font.loadAsync({
-      latoBold: require('./res/assets/fonts/LatoBlack.ttf'),
-      latoLight: require('./res/assets/fonts/LatoLight.ttf'),
-    });
-    this.setState({ loaded: true });
-  };
 
   getEventsByDay(events, date) {
     const result = events.reduce((arr, e) => {
@@ -75,7 +75,6 @@ class App extends React.Component {
     }, []);
     return result;
   }
-
 
   mapEventsByLocation(events) {
     let roomArr = {};
@@ -298,20 +297,21 @@ const Rooms = {
   }
 
 const Months = {
-  SV: ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'],
-  EN: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+  sv: ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'],
+  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 }
 
 const Locations = ['JOHANNEBERG', 'LINDHOLMEN'];
 
 const groupRoomTitle = {
-  SV: "VISA LEDIGA GRUPPRUM",
-  EN: "SHOW AVAILABLE ROOMS",
+  sv: "VISA LEDIGA GRUPPRUM",
+  en: "SHOW AVAILABLE ROOMS",
 }
 
 const HomeScreen = createStackNavigator({
   Home: { screen: App },
   Table: { screen: RoomList },
+  BookingWeb: { screen: BookingWebView }
 },
 {
   initialRouteName: 'Home',
