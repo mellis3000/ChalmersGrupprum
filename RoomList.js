@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AsPure from './as-pure';
 import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, WebView, BackHandler, NavigatorIOS } from 'react-native';
+import { isNullOrUndefined } from 'util';
 
 
 class RoomList extends Component {
@@ -8,7 +9,6 @@ class RoomList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      language: 'SV',
       showWebView: false
     }
   }
@@ -37,18 +37,14 @@ class RoomList extends Component {
     },{});
   }
 
-  
 
   render() {
-
     const { navigate } = this.props.navigation;
     const { events } = this.props.navigation.state.params;
     const { language } = this.props.navigation.state.params;
-    if (language !== null && language !== "") this.state.language = language;
     const sortedEvents = this.sortEvents(events);
-    
     return (
-      <View style={styles.container}>
+       <View style={styles.container}>
         <SectionList
         sections={this.getSections(sortedEvents)}
         renderItem={({item}) => (<TouchableOpacity onPress={() => navigate('BookingWeb') }><ListItem item={item} /></TouchableOpacity>)}
@@ -160,6 +156,11 @@ const groupRooms = {
 }
 
 const timeHeader = {
-  SV: "LEDIGT",
-  EN: "AVAILABLE"
+  sv: "LEDIGT",
+  en: "AVAILABLE"
+}
+
+const noRooms = {
+  sv: "INGA LEDIGA GRUPPRUM",
+  en: "NO AVAILABLE ROOMS"
 }
