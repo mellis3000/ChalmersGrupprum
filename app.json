@@ -6,6 +6,7 @@
     "version": "0.1.0",
     "description": "",
     "privacy": "public",
-    "icon": "./res/img/icon/Icon.png"
+    "icon": "./res/img/icon/Icon.png",
+    "orientation": "portrait"
   }
 }
