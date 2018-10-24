@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import AsPure from './as-pure';
 import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, WebView, BackHandler, NavigatorIOS } from 'react-native';
-import { isNullOrUndefined } from 'util';
-
 
 class RoomList extends Component {
 

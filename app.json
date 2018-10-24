@@ -1,9 +1,11 @@
 {
   "expo": {
     "sdkVersion": "27.0.0",
-    "name": "ChalmersBookingApp",
-    "slug": "chalmersbookingapp",
+    "name": "Chalmers Grupprum",
+    "slug": "chalmers-grupprum",
     "version": "0.1.0",
-    "description": ""
+    "description": "",
+    "privacy": "public",
+    "icon": "./res/img/icon/Icon.png"
   }
 }
