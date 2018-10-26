@@ -51,7 +51,7 @@ class App extends React.Component {
     this.state = {
       language: 'en',
       loaded: false,
-      events: [],
+      events: null,
       location: 1,
       isTimePickerVisible: false,
       isDatePickerVisible: false,
@@ -192,6 +192,10 @@ class App extends React.Component {
   }
 
   render() {
+    if (!this.state.loaded || this.state.events === null) {
+      return <AppLoading />;
+    }
+    
     const { events } = this.state;
     const { navigate } = this.props.navigation;
 
@@ -200,11 +204,6 @@ class App extends React.Component {
     const mapped = this.mapEventsByLocation(dateEvents);
     const availableRooms = this.getAvailableRooms(mapped, this.state.date);
 
-
-    Text.defaultProps.style = { fontFamily: 'latoBlack' }
-    if (!this.state.loaded) {
-      return <AppLoading />;
-    }
 
     return (
       <View style={styles.container}>

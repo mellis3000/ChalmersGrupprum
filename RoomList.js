@@ -41,6 +41,13 @@ class RoomList extends Component {
     const { events } = this.props.navigation.state.params;
     const { language } = this.props.navigation.state.params;
     const sortedEvents = this.sortEvents(events);
+    if (Object.keys(events).length === 0) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.noRoomsHeader}>{noRooms[language]}</Text>
+        </View>
+      );
+    }
     return (
        <View style={styles.container}>
         <SectionList
@@ -79,6 +86,7 @@ const styles = StyleSheet.create({
   container: {
    flex: 1,
    backgroundColor: '#fff',
+   justifyContent: 'center',
   },
   headers: {
     flex: 1,
@@ -138,6 +146,12 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 16,
     fontFamily: 'latoLight',
+  },
+  noRoomsHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    fontFamily: 'latoBold',
+    alignSelf: 'center',
   }
 })
 
