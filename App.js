@@ -239,6 +239,7 @@ class App extends React.Component {
           onConfirm={this._handleTimePicked}
           onCancel={this._hideTimePicker}
           datePickerModeAndroid={'default'}
+          locale='sv-SE'
         />
       </View>
       <TouchableOpacity onPress={() => navigate('Table', {events: availableRooms, language: this.state.language})} style={styles.buttonActive}>
