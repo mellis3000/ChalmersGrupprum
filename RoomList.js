@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AsPure from './as-pure';
-import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, WebView, BackHandler, NavigatorIOS } from 'react-native';
+import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 class RoomList extends Component {
 
@@ -146,6 +146,8 @@ const styles = StyleSheet.create({
   timeText: {
     fontSize: 16,
     fontFamily: 'latoLight',
+    width: 95,
+    justifyContent: 'space-between'
   },
   noRoomsHeader: {
     fontSize: 20,

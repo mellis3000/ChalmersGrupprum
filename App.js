@@ -136,7 +136,7 @@ class App extends React.Component {
       //If time is before all bookings
       if(bookings[0][0] > time) {
           return {
-            freeFrom: '00:00',
+            freeFrom: nowText[this.state.language],
             freeUntil: this.setTimeFormat(bookings[0][0])
           };
       } 
@@ -144,7 +144,7 @@ class App extends React.Component {
       else if(bookings[bookings.length-1][1] <= time) {
         return {
           freeFrom: this.setTimeFormat(bookings[bookings.length-1][1]),
-          freeUntil: '24:00'
+          freeUntil: '23:59'
         };
       }
 
@@ -162,8 +162,8 @@ class App extends React.Component {
     }
 
     return {
-      freeFrom: '00:00',
-      freeUntil: '24:00'
+      freeFrom: nowText[this.state.language],
+      freeUntil: '23:59'
     };
   }
 
@@ -357,6 +357,11 @@ const Locations = ['JOHANNEBERG', 'LINDHOLMEN'];
 const groupRoomTitle = {
   sv: "VISA LEDIGA GRUPPRUM",
   en: "SHOW AVAILABLE ROOMS",
+}
+
+const nowText = {
+  sv: "Nu",
+  en: "Now"
 }
 
 const HomeScreen = createStackNavigator({
