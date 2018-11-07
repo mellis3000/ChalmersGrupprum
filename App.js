@@ -2,7 +2,7 @@ import React from 'react';
 import ICAL from 'ical.js';
 import { AppLoading, Font } from 'expo';
 import RoomList from './RoomList.js';
-import { StyleSheet, Text, View, TouchableOpacity, Platform , NativeModules} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Picker} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import BookingWebView from './BookingWebView.js';
@@ -35,6 +35,8 @@ loadAssetsAsync = async () => {
   return await Expo.Font.loadAsync({
     latoBold: require('./res/assets/fonts/LatoBlack.ttf'),
     latoLight: require('./res/assets/fonts/LatoLight.ttf'),
+    montLight: require('./res/assets/fonts/MontLight.otf'),
+    montBold: require('./res/assets/fonts/MontBold.otf'),
   });
 };
 
@@ -56,6 +58,7 @@ class App extends React.Component {
       isTimePickerVisible: false,
       isDatePickerVisible: false,
       date: new Date(),
+      duration: 1,
     }
   }
 
@@ -207,46 +210,53 @@ class App extends React.Component {
 
     return (
       <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={() => this.setState({ location: 1 })} activeOpacity={1} style={this.state.location === 1 ? styles.buttonActive :  styles.buttonInactive}>
-          <Text style={styles.text}>{Locations[0]}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => this.setState({ location: 2 })} activeOpacity={1} style={this.state.location === 2 ? styles.buttonActive :  styles.buttonInactive}>
-          <Text style={styles.text}>{Locations[1]}</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.buttonContainer}>
-        <View style={styles.dateText}>
-        <TouchableOpacity onPress={this._showDatePicker} activeOpacity={1} style={styles.buttonActive}>
-          <Text style={styles.text}>{this.formatDate(this.state.date).toUpperCase()}</Text>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Chalmers</Text>
+          <Text style={styles.headerText}>Grupprum</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={() => this.setState({ location: 1 })} activeOpacity={1} style={this.state.location === 1 ? styles.buttonActive :  styles.buttonInactive}>
+            <Text style={styles.text}>{Locations[0]}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({ location: 2 })} activeOpacity={1} style={this.state.location === 2 ? styles.buttonActive :  styles.buttonInactive}>
+            <Text style={styles.text}>{Locations[1]}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.buttonContainer}>
+          <View style={styles.dateText}>
+          <TouchableOpacity onPress={this._showDatePicker} activeOpacity={1} style={styles.buttonActive}>
+            <Text style={styles.text}>{this.formatDate(this.state.date).toUpperCase()}</Text>
+            </TouchableOpacity>
+            <DateTimePicker
+              mode='date'
+              date={this.state.date}
+              isVisible={this.state.isDatePickerVisible}
+              onConfirm={this._handleDatePicked}
+              onCancel={this._hideDatePicker}
+              datePickerModeAndroid={'default'}
+            />
+          </View>
+          <TouchableOpacity onPress={this._showTimePicker} activeOpacity={1} style={styles.buttonActive}>
+            <Text style={styles.text}>{this.formatTime(this.state.date)}</Text>
           </TouchableOpacity>
           <DateTimePicker
-            mode='date'
+            mode='time'
             date={this.state.date}
-            isVisible={this.state.isDatePickerVisible}
-            onConfirm={this._handleDatePicked}
-            onCancel={this._hideDatePicker}
+            isVisible={this.state.isTimePickerVisible}
+            onConfirm={this._handleTimePicked}
+            onCancel={this._hideTimePicker}
             datePickerModeAndroid={'default'}
+            locale='sv-SE'
           />
         </View>
-      <TouchableOpacity onPress={this._showTimePicker} activeOpacity={1} style={styles.buttonActive}>
-         <Text style={styles.text}>{this.formatTime(this.state.date)}</Text>
+        <TouchableOpacity onPress={() => navigate('Table', {events: availableRooms, language: this.state.language})} style={styles.searchButton}>
+          <Text style={styles.searchButtonText}>{groupRoomTitle[this.state.language]}</Text>
+          <Image
+                source={require('./res/img/right-arrow.png')}
+                style={styles.bookingIcon}
+            />
         </TouchableOpacity>
-        <DateTimePicker
-          mode='time'
-          date={this.state.date}
-          isVisible={this.state.isTimePickerVisible}
-          onConfirm={this._handleTimePicked}
-          onCancel={this._hideTimePicker}
-          datePickerModeAndroid={'default'}
-          locale='sv-SE'
-        />
-      </View>
-      <TouchableOpacity onPress={() => navigate('Table', {events: availableRooms, language: this.state.language})} style={styles.buttonActive}>
-        <Text style={styles.text}>{groupRoomTitle[this.state.language]}</Text>
-      </TouchableOpacity>
-    
-      </View>
+        </View>
     );
   }
 }
@@ -260,6 +270,22 @@ const styles = StyleSheet.create({
   },
   buttonContainer: { 
     flexDirection: 'row'
+  },
+  headerContainer: { 
+    flexDirection: 'column',
+    alignItems: "center",
+    justifyContent: "center",
+    height: 120
+  },
+  searchButton: {
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderColor: '#3ea8f9',
+    borderWidth: 2,
+    padding: 10,
+    margin: 15,
+    borderRadius: 20,
+    flexDirection: "row"
   },
   buttonActive: {
     alignItems: 'center',
@@ -275,10 +301,27 @@ const styles = StyleSheet.create({
     margin: 15,
     borderRadius: 20    
   },
+  searchButtonText: {
+    fontSize: 16,
+    marginRight: 5,
+    color: '#3ea8f9',
+    fontFamily: 'latoBold'
+  },
+  headerText: {
+    fontSize: 40,
+    color: '#3ea8f9',
+    fontFamily: 'montBold'
+  },
   text: {
     fontSize: 16,
     color: '#fff',
     fontFamily: 'latoBold'
+  },
+  blueText: {
+    fontSize: 16,
+    color: '#3ea8f9',
+    fontFamily: 'latoBold',
+    alignSelf: "center"
   },
   dateText: {
     minWidth: 135
@@ -290,7 +333,13 @@ const styles = StyleSheet.create({
   },
   datePicker: {
     backgroundColor: '#3ea8f9',
-  }
+  },
+  bookingIcon: {
+    height: 20,
+    width: 20,
+    resizeMode: 'contain',
+  },
+
 });
 
 const Rooms = {
