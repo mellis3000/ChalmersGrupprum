@@ -2,7 +2,7 @@ import React from 'react';
 import ICAL from 'ical.js';
 import { AppLoading, Font } from 'expo';
 import RoomList from './RoomList.js';
-import { StyleSheet, Text, View, TouchableOpacity, Image, Picker} from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import BookingWebView from './BookingWebView.js';
@@ -57,6 +57,7 @@ class App extends React.Component {
       location: 1,
       isTimePickerVisible: false,
       isDatePickerVisible: false,
+      isDurationPickerVisible: false,
       date: new Date(),
       duration: 1,
     }
@@ -131,12 +132,17 @@ class App extends React.Component {
     return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
   }
 
+  isToday(date){
+    let today = new Date();
+    return date.toDateString() == today.toDateString()
+  }
+
   setFreeInterval(events, time, bookings) {
     if(events) {
       //If time is before all bookings
       if(bookings[0][0] > time) {
           return {
-            freeFrom: nowText[this.state.language],
+            freeFrom: this.isToday(this.state.date) ? nowText[this.state.language] : '00:00',
             freeUntil: this.setTimeFormat(bookings[0][0])
           };
       } 
@@ -162,7 +168,7 @@ class App extends React.Component {
     }
 
     return {
-      freeFrom: nowText[this.state.language],
+      freeFrom: this.isToday(this.state.date) ? nowText[this.state.language] : '00:00',
       freeUntil: '23:59'
     };
   }
@@ -185,6 +191,8 @@ class App extends React.Component {
     this.setState({ date: date });
     this._hideDatePicker();
   };
+
+  _showDurationPicker = () => this.setState({ isDurationPickerVisible: true });
 
   formatDate(date){
     return date.getDate() + " " + Months[this.state.language][date.getMonth()];
@@ -363,6 +371,8 @@ const nowText = {
   sv: "Nu",
   en: "Now"
 }
+
+const hourList = [1,2,3,4]
 
 const HomeScreen = createStackNavigator({
   Home: { screen: App },
