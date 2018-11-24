@@ -61,7 +61,7 @@ class App extends React.Component {
       isDurationPickerVisible: false,
       date: new Date(),
       duration: 1,
-      minTime: 1,
+      minTime: 60,
     }
   }
 
@@ -153,7 +153,7 @@ class App extends React.Component {
   fulfillsMinimumTime(start, end) {
      const startTimeInMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
      const endTimeInMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
-     return (endTimeInMinutes - startTimeInMinutes) > 60
+     return (endTimeInMinutes - startTimeInMinutes) > this.state.minTime
   }
 
   setFreeInterval(events, time, bookings) {
