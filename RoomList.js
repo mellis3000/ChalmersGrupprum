@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import AsPure from './as-pure';
-import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, Clipboard } from 'react-native';
+import Toast, {DURATION} from 'react-native-easy-toast'
 
 class RoomList extends Component {
 
@@ -35,7 +36,6 @@ class RoomList extends Component {
     },{});
   }
 
-
   render() {
     const { navigate } = this.props.navigation;
     const { events } = this.props.navigation.state.params;
@@ -50,9 +50,21 @@ class RoomList extends Component {
     }
     return (
        <View style={styles.container}>
+       <Toast
+          ref="toast"
+          style={{backgroundColor:'black', borderRadius: 10 }}
+          position='bottom'
+          positionValue={200}
+          fadeInDuration={200}
+          opacity={0.8}
+          textStyle={{color:'white', fontSize: 16}}
+        />
         <SectionList
         sections={this.getSections(sortedEvents)}
-        renderItem={({item}) => (<TouchableOpacity onPress={() => navigate('BookingWeb') }><ListItem item={item} /></TouchableOpacity>)}
+        renderItem={({item}) => (
+        <TouchableOpacity onPress={() => { Clipboard.setString(item.split(' ')[0]); this.refs.toast.show('Room name has been copied to clipboard', 250, () => navigate('BookingWeb')) }}>
+          <ListItem item={item} />
+        </TouchableOpacity> )}
         renderSectionHeader={({section}) => 
         <View style={styles.headers}>
           <Text style={styles.sectionHeader}>{section.title}</Text>
@@ -69,16 +81,16 @@ class RoomList extends Component {
 const ListItem = AsPure(({item}) => {
   return (
   <View style={styles.item}>
-    <Text style={styles.roomText}>{item.split(' ')[0]}</Text>
-    <View style={styles.time}>
-      <Text style={styles.timeText}>{`${item.split(' ')[1]} ${item.split(' ')[2]} ${item.split(' ')[3]}`}</Text>
-    </View>
-    <View style={styles.bookingButton}>
-        <Image
-              source={require('./res/img/right-arrow.png')}
-              style={styles.bookingIcon}
-          />
-    </View>
+      <Text style={styles.roomText}>{item.split(' ')[0]}</Text>
+      <View style={styles.time}>
+        <Text style={styles.timeText}>{`${item.split(' ')[1]} ${item.split(' ')[2]} ${item.split(' ')[3]}`}</Text>
+      </View>
+      <View style={styles.bookingButton}>
+          <Image
+                source={require('./res/img/right-arrow.png')}
+                style={styles.bookingIcon}
+            />
+      </View>
   </View>);
 })
 
