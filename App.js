@@ -5,6 +5,7 @@ import RoomList from './RoomList.js';
 import { StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import { Picker } from 'react-native-wheel-pick';
 import BookingWebView from './BookingWebView.js';
 import { DangerZone } from 'expo';
 const { Localization } = DangerZone;
@@ -60,6 +61,7 @@ class App extends React.Component {
       isDurationPickerVisible: false,
       date: new Date(),
       duration: 1,
+      minTime: 1,
     }
   }
 
@@ -117,11 +119,18 @@ class App extends React.Component {
             delete roomEvents[key];
             break;
           }
-          roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
         }
+        roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
+
+        if (!this.fulfillsMinimumTime(roomEvents[key].freeFrom, roomEvents[key].freeUntil)){
+          delete roomEvents[key];
+        }
+
       } else {
         roomEvents[key] = this.setFreeInterval(roomEvents[key]);
       }
+      if (roomEvents[key])
+        roomEvents[key].freeFrom = this.setNowText(roomEvents[key].freeFrom)
     });
     return roomEvents;
   }
@@ -132,9 +141,19 @@ class App extends React.Component {
     return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
   }
 
-  isToday(date){
+  setNowText(time) {
+    return this.isToday(this.state.date) ? nowText[this.state.language] : time;
+  }
+
+  isToday(date) {
     let today = new Date();
     return date.toDateString() == today.toDateString()
+  }
+
+  fulfillsMinimumTime(start, end) {
+     const startTimeInMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
+     const endTimeInMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
+     return (endTimeInMinutes - startTimeInMinutes) > 60
   }
 
   setFreeInterval(events, time, bookings) {
@@ -142,7 +161,7 @@ class App extends React.Component {
       //If time is before all bookings
       if(bookings[0][0] > time) {
           return {
-            freeFrom: this.isToday(this.state.date) ? nowText[this.state.language] : '00:00',
+            freeFrom: '00:00',
             freeUntil: this.setTimeFormat(bookings[0][0])
           };
       } 
@@ -168,7 +187,7 @@ class App extends React.Component {
     }
 
     return {
-      freeFrom: this.isToday(this.state.date) ? nowText[this.state.language] : '00:00',
+      freeFrom: '00:00',
       freeUntil: '23:59'
     };
   }
@@ -214,7 +233,6 @@ class App extends React.Component {
 
     const mapped = this.mapEventsByLocation(dateEvents);
     const availableRooms = this.getAvailableRooms(mapped, this.state.date);
-
 
     return (
       <View style={styles.container}>
@@ -371,8 +389,6 @@ const nowText = {
   sv: "Nu",
   en: "Now"
 }
-
-const hourList = [1,2,3,4]
 
 const HomeScreen = createStackNavigator({
   Home: { screen: App },
