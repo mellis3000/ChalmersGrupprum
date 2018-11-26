@@ -89,7 +89,6 @@ class App extends React.Component {
     });
     
     const mappedEvents = events.reduce((obj,e) => {
-
       const loc = e.getFirstPropertyValue('location');
       let multiLoc = loc.replace('\\', '');
       let multiArr = multiLoc.split(',').map(str => str.trim());
@@ -114,18 +113,20 @@ class App extends React.Component {
         bookings.sort();
 
         for(const booking of bookings) {
+          console.log(key, booking)
           //Remove from list if booked the chosen time
           if (booking[0] <=  time && booking[1] > time){ 
             delete roomEvents[key];
             break;
+          } 
+          roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
+        }
+
+        if (roomEvents[key]) {
+          if (!this.fulfillsMinimumTime(roomEvents[key].freeFrom, roomEvents[key].freeUntil)){
+            delete roomEvents[key];
           }
         }
-        roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
-
-        if (!this.fulfillsMinimumTime(roomEvents[key].freeFrom, roomEvents[key].freeUntil)){
-          delete roomEvents[key];
-        }
-
       } else {
         roomEvents[key] = this.setFreeInterval(roomEvents[key]);
       }
@@ -232,6 +233,7 @@ class App extends React.Component {
     const dateEvents = this.getEventsByDay(events, this.state.date);
 
     const mapped = this.mapEventsByLocation(dateEvents);
+
     const availableRooms = this.getAvailableRooms(mapped, this.state.date);
 
     return (
