@@ -113,7 +113,6 @@ class App extends React.Component {
         bookings.sort();
 
         for(const booking of bookings) {
-          console.log(key, booking)
           //Remove from list if booked the chosen time
           if (booking[0] <=  time && booking[1] > time){ 
             delete roomEvents[key];
@@ -131,7 +130,7 @@ class App extends React.Component {
         roomEvents[key] = this.setFreeInterval(roomEvents[key]);
       }
       if (roomEvents[key])
-        roomEvents[key].freeFrom = this.setNowText(roomEvents[key].freeFrom)
+        roomEvents[key].freeFrom = this.setNowText(roomEvents[key].freeFrom, time)
     });
     return roomEvents;
   }
@@ -142,8 +141,11 @@ class App extends React.Component {
     return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
   }
 
-  setNowText(time) {
-    return this.isToday(this.state.date) ? nowText[this.state.language] : time;
+  setNowText(freeFrom) {
+    var freeFromDate = new Date(this.state.date);
+    freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
+    console.log(freeFromDate < this.state.date, freeFromDate.toLocaleString(), this.state.date.toLocaleString())
+    return (this.isToday(this.state.date) && this.state.date < freeFromDate) ? nowText[this.state.language] : freeFrom;
   }
 
   isToday(date) {
