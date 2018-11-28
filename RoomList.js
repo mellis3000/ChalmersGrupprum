@@ -70,6 +70,7 @@ class RoomList extends Component {
           <Text style={styles.sectionHeader}>{section.title}</Text>
           <Text style={[styles.sectionHeader, styles.sectionHeaderIsFree]}>{timeHeader[language]}</Text>
         </View>}
+        stickySectionHeadersEnabled={false}
         keyExtractor={(item, index) => index}
       />
       </View>
@@ -114,7 +115,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     fontWeight: 'bold',
     fontFamily: 'latoBold',
-    backgroundColor: '#fff',
     marginLeft: 10,
   },
   sectionHeaderIsFree: {

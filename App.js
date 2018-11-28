@@ -144,7 +144,6 @@ class App extends React.Component {
   setNowText(freeFrom) {
     var freeFromDate = new Date(this.state.date);
     freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
-    console.log(freeFromDate < this.state.date, freeFromDate.toLocaleString(), this.state.date.toLocaleString())
     return (this.isToday(this.state.date) && this.state.date < freeFromDate) ? nowText[this.state.language] : freeFrom;
   }
 
