@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import AsPure from './as-pure';
+import AsPure from '../as-pure';
 import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, Clipboard } from 'react-native';
 import Toast, {DURATION} from 'react-native-easy-toast'
 
@@ -88,7 +88,7 @@ const ListItem = AsPure(({item}) => {
       </View>
       <View style={styles.bookingButton}>
           <Image
-                source={require('./res/img/right-arrow.png')}
+                source={require('../res/img/right-arrow.png')}
                 style={styles.bookingIcon}
             />
       </View>

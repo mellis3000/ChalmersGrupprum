@@ -7,6 +7,10 @@
     "description": "",
     "privacy": "public",
     "icon": "./res/img/icon/Icon.png",
-    "orientation": "portrait"
+    "orientation": "portrait",
+    "android": {
+      "package": "com.melinaandersson.chalmersgrupprum",
+      "permissions": []
+    }
   }
 }

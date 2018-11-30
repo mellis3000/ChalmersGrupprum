@@ -1,7 +1,4 @@
-import React, { Component } from 'react';
-
-import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, WebView, BackHandler, NavigatorIOS } from 'react-native';
-
+import React from 'react';
 
 
 export default () => (

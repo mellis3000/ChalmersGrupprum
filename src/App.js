@@ -5,7 +5,6 @@ import RoomList from './RoomList.js';
 import { StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import { Picker } from 'react-native-wheel-pick';
 import BookingWebView from './BookingWebView.js';
 import { DangerZone } from 'expo';
 const { Localization } = DangerZone;
@@ -34,10 +33,10 @@ parseIcal = async () => {
 
 loadAssetsAsync = async () => {
   return await Expo.Font.loadAsync({
-    latoBold: require('./res/assets/fonts/LatoBlack.ttf'),
-    latoLight: require('./res/assets/fonts/LatoLight.ttf'),
-    montLight: require('./res/assets/fonts/MontLight.otf'),
-    montBold: require('./res/assets/fonts/MontBold.otf'),
+    latoBold: require('../res/assets/fonts/LatoBlack.ttf'),
+    latoLight: require('../res/assets/fonts/LatoLight.ttf'),
+    montLight: require('../res/assets/fonts/MontLight.otf'),
+    montBold: require('../res/assets/fonts/MontBold.otf'),
   });
 };
 
@@ -281,7 +280,7 @@ class App extends React.Component {
         <TouchableOpacity onPress={() => navigate('Table', {events: availableRooms, language: this.state.language})} style={styles.searchButton}>
           <Text style={styles.searchButtonText}>{groupRoomTitle[this.state.language]}</Text>
           <Image
-                source={require('./res/img/right-arrow.png')}
+                source={require('../res/img/right-arrow.png')}
                 style={styles.bookingIcon}
             />
         </TouchableOpacity>
