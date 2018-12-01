@@ -141,9 +141,10 @@ class App extends React.Component {
   }
 
   setNowText(freeFrom) {
-    var freeFromDate = new Date(this.state.date);
+    let freeFromDate = new Date(this.state.date);
+    let now = new Date();
     freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
-    return (this.isToday(this.state.date) && this.state.date < freeFromDate) ? nowText[this.state.language] : freeFrom;
+    return (this.isToday(this.state.date) && now >= freeFromDate) ? nowText[this.state.language] : freeFrom;
   }
 
   isToday(date) {
@@ -152,9 +153,14 @@ class App extends React.Component {
   }
 
   fulfillsMinimumTime(start, end) {
+     const now = new Date();
+     const nowInMinutes = now.getHours() * 60 + now.getMinutes();
      const startTimeInMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
      const endTimeInMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
-     return (endTimeInMinutes - startTimeInMinutes) > this.state.minTime
+     
+     return nowInMinutes > startTimeInMinutes
+        ? (endTimeInMinutes - nowInMinutes) > this.state.minTime
+        : (endTimeInMinutes - startTimeInMinutes) > this.state.minTime
   }
 
   setFreeInterval(events, time, bookings) {

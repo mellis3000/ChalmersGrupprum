@@ -29,9 +29,14 @@ class RoomList extends Component {
     return Object.keys(events).reduce((obj,e) => {
       let firstLetter = e.substring(0,1) === 'F' ? e.substring(0,1) : e.substring(0,2);
       const titleString = e.replace(' ','') + " " + events[e].freeFrom + " - " + events[e].freeUntil;
-      if (firstLetter === '11')
+      if (firstLetter === '11') {
         firstLetter = "KG";
-      !obj[firstLetter] ? obj[firstLetter] = [titleString] : obj[firstLetter].push(titleString);
+      }
+      if (!obj[firstLetter]) {
+        obj[firstLetter] = [titleString]
+      } else {
+        obj[firstLetter].push(titleString);
+      }
       return obj;
     },{});
   }
