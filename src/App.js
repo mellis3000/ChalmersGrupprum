@@ -1,13 +1,11 @@
 import React from 'react';
 import ICAL from 'ical.js';
-import { AppLoading, Font } from 'expo';
+import * as Expo from 'expo';
 import RoomList from './RoomList.js';
 import { StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import BookingWebView from './BookingWebView.js';
-import { DangerZone } from 'expo';
-const { Localization } = DangerZone;
 
 getDataFromUrlAsync = async () => {
   try {
@@ -20,7 +18,7 @@ getDataFromUrlAsync = async () => {
 }
 
 getLocale = async () => {
-  return await Localization.getCurrentLocaleAsync();
+  return await Expo.Localization.locale();
 }
 
 parseIcal = async () => {
@@ -230,7 +228,7 @@ class App extends React.Component {
 
   render() {
     if (!this.state.loaded || this.state.events === null) {
-      return <AppLoading />;
+      return <Expo.AppLoading />;
     }
     
     const { events } = this.state;
