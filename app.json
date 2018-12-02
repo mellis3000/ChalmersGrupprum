@@ -3,7 +3,7 @@
     "sdkVersion": "31.0.0",
     "name": "Chalmers Grupprum",
     "slug": "chalmers-grupprum",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "",
     "privacy": "public",
     "icon": "./res/img/icon/Icon.png",
