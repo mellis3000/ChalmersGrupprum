@@ -71,9 +71,9 @@ class App extends React.Component {
   getEventsByDay(events, date) {
     const result = events.reduce((arr, e) => {
       const eventDate = new Date(e.getFirstPropertyValue('dtstart'));
-      if (getDateWithoutTime(eventDate).valueOf() === getDateWithoutTime(date).valueOf()) 
+      if (getDateWithoutTime(eventDate).valueOf() === getDateWithoutTime(date).valueOf()) {
         arr.push(e);
-        
+      }
       return arr;
     }, []);
     return result;
@@ -81,17 +81,22 @@ class App extends React.Component {
 
   mapEventsByLocation(events) {
     let roomArr = {};
-    Rooms[this.state.location].forEach(room => {
+    for (const room of Rooms[this.state.location]) {
       roomArr[room] = null;
-    });
+    };
     
     const mappedEvents = events.reduce((obj,e) => {
       const loc = e.getFirstPropertyValue('location');
       let multiLoc = loc.replace('\\', '');
       let multiArr = multiLoc.split(',').map(str => str.trim());
       for (const location of multiArr) {
-        if (obj[location] !== undefined)
-          obj[location] === null ? obj[location] = [e] : obj[location].push(e);
+        if (obj[location] !== undefined) {
+          if (obj[location] === null) {
+            obj[location] = [e]
+          } else {
+            obj[location].push(e);
+          }
+        }
       }
       return obj;
     }, roomArr);
@@ -100,13 +105,13 @@ class App extends React.Component {
   }
 
   getAvailableRooms(roomEvents, time) {
-    Object.keys(roomEvents).forEach(key => {
+    for (const key of Object.keys(roomEvents)) {
       if(roomEvents[key]){
         const events = roomEvents[key];
         let bookings = [];
-        events.forEach(e => {
+        for (const e of events) {
           bookings.push([e.getFirstPropertyValue('dtstart').toJSDate(), e.getFirstPropertyValue('dtend').toJSDate()]);
-        });
+        };
         bookings.sort();
 
         for(const booking of bookings) {
@@ -128,26 +133,8 @@ class App extends React.Component {
       }
       if (roomEvents[key])
         roomEvents[key].freeFrom = this.setNowText(roomEvents[key].freeFrom, time)
-    });
+    };
     return roomEvents;
-  }
-
-  setTimeFormat(time) {
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
-    return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
-  }
-
-  setNowText(freeFrom) {
-    let freeFromDate = new Date(this.state.date);
-    let now = new Date();
-    freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
-    return (this.isToday(this.state.date) && now >= freeFromDate) ? nowText[this.state.language] : freeFrom;
-  }
-
-  isToday(date) {
-    let today = new Date();
-    return date.toDateString() == today.toDateString()
   }
 
   fulfillsMinimumTime(start, end) {
@@ -167,13 +154,13 @@ class App extends React.Component {
       if(bookings[0][0] > time) {
           return {
             freeFrom: '00:00',
-            freeUntil: this.setTimeFormat(bookings[0][0])
+            freeUntil: this.formatTime(bookings[0][0])
           };
       } 
       // If time is after all bookings
       else if(bookings[bookings.length-1][1] <= time) {
         return {
-          freeFrom: this.setTimeFormat(bookings[bookings.length-1][1]),
+          freeFrom: this.formatTime(bookings[bookings.length-1][1]),
           freeUntil: '23:59'
         };
       }
@@ -183,8 +170,8 @@ class App extends React.Component {
         if (bookings.length > 1) {
           if(bookings[i][1] <= time && bookings[i+1][0] > time) {  
             return {
-              freeFrom: this.setTimeFormat(bookings[i][1]),
-              freeUntil: this.setTimeFormat(bookings[i+1][0])
+              freeFrom: this.formatTime(bookings[i][1]),
+              freeUntil: this.formatTime(bookings[i+1][0])
             };
           }
         }
@@ -222,8 +209,22 @@ class App extends React.Component {
     return date.getDate() + " " + Months[this.state.language][date.getMonth()];
   }
 
-  formatTime(time){
-     return (time.getHours() < 10 ? '0' + time.getHours() : time.getHours()) + ':' + (time.getMinutes() < 10 ? '0' + time.getMinutes() : time.getMinutes())
+  formatTime(time) {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
+  }
+
+  setNowText(freeFrom) {
+    let freeFromDate = new Date(this.state.date);
+    let now = new Date();
+    freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
+    return (this.isToday(this.state.date) && now >= freeFromDate) ? nowText[this.state.language] : freeFrom;
+  }
+
+  isToday(date) {
+    let today = new Date();
+    return date.toDateString() == today.toDateString()
   }
 
   render() {

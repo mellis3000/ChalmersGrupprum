@@ -7,21 +7,18 @@ class RoomList extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      showWebView: false
-    }
   }
-
 
   getSections(events) {
     let result = [];
-    Object.keys(events).forEach(key => {
+   // Object.keys(events).forEach(key => {
+     for (const key of Object.keys(events)) {
       let obj = {
         title: groupRooms[key],
         data: events[key].sort()
       }
       result.push(obj);
-    });
+    };
     return result;
   }
 
