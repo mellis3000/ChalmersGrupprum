@@ -14,7 +14,7 @@
     "android": {
       "package": "com.melinaandersson.chalmersgrupprum",
       "permissions": [],
-      "versionCode": 2
+      "versionCode": 3
     }
   }
 }
