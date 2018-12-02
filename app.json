@@ -3,14 +3,18 @@
     "sdkVersion": "31.0.0",
     "name": "Chalmers Grupprum",
     "slug": "chalmers-grupprum",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "",
     "privacy": "public",
     "icon": "./res/img/icon/Icon.png",
     "orientation": "portrait",
+    "ios": {
+      "bundleIdentifier": "com.melinaandersson.chalmersgrupprum"
+    },
     "android": {
       "package": "com.melinaandersson.chalmersgrupprum",
-      "permissions": []
+      "permissions": [],
+      "versionCode": 2
     }
   }
 }
