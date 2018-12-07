@@ -9,7 +9,7 @@ export const getDataFromUrlAsync = async () => {
     } catch (error) {
       console.error(error);
     }
-  }
+}
   
 export const getLocale = async () => {
   return await Expo.Localization.locale;

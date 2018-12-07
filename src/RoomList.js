@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import AsPure from '../as-pure';
-import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, Clipboard } from 'react-native';
+import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import Toast from 'react-native-easy-toast';
 
 class RoomListScreen extends Component {

@@ -6,258 +6,258 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 
 class HomeScreen extends React.Component {
 
-    constructor(props) {
-      super(props);
-      this.state = {
-        language: 'en',
-        loaded: false,
-        events: null,
-        location: 1,
-        isTimePickerVisible: false,
-        isDatePickerVisible: false,
-        isDurationPickerVisible: false,
-        date: new Date(),
-        duration: 1,
-        minTime: 60,
+  constructor(props) {
+    super(props);
+    this.state = {
+      language: 'en',
+      loaded: false,
+      events: null,
+      location: 1,
+      isTimePickerVisible: false,
+      isDatePickerVisible: false,
+      isDurationPickerVisible: false,
+      date: new Date(),
+      duration: 1,
+      minTime: 60,
+    }
+  }
+
+  componentDidMount() {
+    parseIcal().then(events => this.setState({ events }) ); 
+    getLocale().then(language => this.setState({ language: language.substring(0, 2) }));   
+    loadAssetsAsync().then(res =>  this.setState({ loaded: true }));
+  }
+
+  getEventsByDay(events, date) {
+    const result = events.reduce((arr, e) => {
+      const eventDate = new Date(e.getFirstPropertyValue('dtstart'));
+      if (this.getDateWithoutTime(eventDate).valueOf() === this.getDateWithoutTime(date).valueOf()) {
+        arr.push(e);
       }
-    }
-  
-    componentDidMount() {
-      parseIcal().then(events => this.setState({ events }) ); 
-      getLocale().then(language => this.setState({ language: language.substring(0, 2) }));   
-      loadAssetsAsync().then(res =>  this.setState({ loaded: true }));
-    }
-  
-    getEventsByDay(events, date) {
-      const result = events.reduce((arr, e) => {
-        const eventDate = new Date(e.getFirstPropertyValue('dtstart'));
-        if (this.getDateWithoutTime(eventDate).valueOf() === this.getDateWithoutTime(date).valueOf()) {
-          arr.push(e);
+      return arr;
+    }, []);
+    return result;
+  }
+
+  mapEventsByLocation(events) {
+    let roomArr = {};
+    for (const room of Rooms[this.state.location]) {
+      roomArr[room] = null;
+    };
+    
+    const mappedEvents = events.reduce((obj,e) => {
+      const loc = e.getFirstPropertyValue('location');
+      let multiLoc = loc.replace('\\', '');
+      let multiArr = multiLoc.split(',').map(str => str.trim());
+      for (const location of multiArr) {
+        if (obj[location] !== undefined) {
+          if (obj[location] === null) {
+            obj[location] = [e]
+          } else {
+            obj[location].push(e);
+          }
         }
-        return arr;
-      }, []);
-      return result;
-    }
-  
-    mapEventsByLocation(events) {
-      let roomArr = {};
-      for (const room of Rooms[this.state.location]) {
-        roomArr[room] = null;
-      };
+      }
+      return obj;
+    }, roomArr);
+
+    return mappedEvents;
+  }
+
+  getAvailableRooms(roomEvents, time) {
+    for (const key of Object.keys(roomEvents)) {
+      if(roomEvents[key]){
+        const events = roomEvents[key];
+        let bookings = [];
+        for (const e of events) {
+          bookings.push([e.getFirstPropertyValue('dtstart').toJSDate(), e.getFirstPropertyValue('dtend').toJSDate()]);
+        };
+        bookings.sort();
+
+        for(const booking of bookings) {
+          //Remove from list if booked the chosen time
+          if (booking[0] <=  time && booking[1] > time){ 
+            delete roomEvents[key];
+            break;
+          } 
+          roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
+        }
+
+        if (roomEvents[key]) {
+          if (!this.fulfillsMinimumTime(roomEvents[key].freeFrom, roomEvents[key].freeUntil)){
+            delete roomEvents[key];
+          }
+        }
+      } else {
+        roomEvents[key] = this.setFreeInterval(roomEvents[key]);
+      }
+      if (roomEvents[key])
+        roomEvents[key].freeFrom = this.setNowText(roomEvents[key].freeFrom, time)
+    };
+    return roomEvents;
+  }
+
+  fulfillsMinimumTime(start, end) {
+      const now = new Date();
+      const nowInMinutes = now.getHours() * 60 + now.getMinutes();
+      const startTimeInMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
+      const endTimeInMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
       
-      const mappedEvents = events.reduce((obj,e) => {
-        const loc = e.getFirstPropertyValue('location');
-        let multiLoc = loc.replace('\\', '');
-        let multiArr = multiLoc.split(',').map(str => str.trim());
-        for (const location of multiArr) {
-          if (obj[location] !== undefined) {
-            if (obj[location] === null) {
-              obj[location] = [e]
-            } else {
-              obj[location].push(e);
-            }
-          }
-        }
-        return obj;
-      }, roomArr);
-  
-      return mappedEvents;
-    }
-  
-    getAvailableRooms(roomEvents, time) {
-      for (const key of Object.keys(roomEvents)) {
-        if(roomEvents[key]){
-          const events = roomEvents[key];
-          let bookings = [];
-          for (const e of events) {
-            bookings.push([e.getFirstPropertyValue('dtstart').toJSDate(), e.getFirstPropertyValue('dtend').toJSDate()]);
-          };
-          bookings.sort();
-  
-          for(const booking of bookings) {
-            //Remove from list if booked the chosen time
-            if (booking[0] <=  time && booking[1] > time){ 
-              delete roomEvents[key];
-              break;
-            } 
-            roomEvents[key] = this.setFreeInterval(roomEvents[key], time, bookings);
-          }
-  
-          if (roomEvents[key]) {
-            if (!this.fulfillsMinimumTime(roomEvents[key].freeFrom, roomEvents[key].freeUntil)){
-              delete roomEvents[key];
-            }
-          }
-        } else {
-          roomEvents[key] = this.setFreeInterval(roomEvents[key]);
-        }
-        if (roomEvents[key])
-          roomEvents[key].freeFrom = this.setNowText(roomEvents[key].freeFrom, time)
-      };
-      return roomEvents;
-    }
-  
-    fulfillsMinimumTime(start, end) {
-       const now = new Date();
-       const nowInMinutes = now.getHours() * 60 + now.getMinutes();
-       const startTimeInMinutes = parseInt(start.split(':')[0]) * 60 + parseInt(start.split(':')[1]);
-       const endTimeInMinutes = parseInt(end.split(':')[0]) * 60 + parseInt(end.split(':')[1]);
-       
-       return nowInMinutes > startTimeInMinutes
-          ? (endTimeInMinutes - nowInMinutes) > this.state.minTime
-          : (endTimeInMinutes - startTimeInMinutes) > this.state.minTime
-    }
-  
-    setFreeInterval(events, time, bookings) {
-      if(events) {
-        //If time is before all bookings
-        if(bookings[0][0] > time) {
-            return {
-              freeFrom: '00:00',
-              freeUntil: this.formatTime(bookings[0][0])
-            };
-        } 
-        // If time is after all bookings
-        else if(bookings[bookings.length-1][1] <= time) {
+      return nowInMinutes > startTimeInMinutes
+        ? (endTimeInMinutes - nowInMinutes) > this.state.minTime
+        : (endTimeInMinutes - startTimeInMinutes) > this.state.minTime
+  }
+
+  setFreeInterval(events, time, bookings) {
+    if(events) {
+      //If time is before all bookings
+      if(bookings[0][0] > time) {
           return {
-            freeFrom: this.formatTime(bookings[bookings.length-1][1]),
-            freeUntil: '23:59'
+            freeFrom: '00:00',
+            freeUntil: this.formatTime(bookings[0][0])
           };
-        }
-  
-        //If time is between two bookings
-        for(let i = 0; i < bookings.length; i++) {
-          if (bookings.length > 1) {
-            if(bookings[i][1] <= time && bookings[i+1][0] > time) {  
-              return {
-                freeFrom: this.formatTime(bookings[i][1]),
-                freeUntil: this.formatTime(bookings[i+1][0])
-              };
-            }
+      } 
+      // If time is after all bookings
+      else if(bookings[bookings.length-1][1] <= time) {
+        return {
+          freeFrom: this.formatTime(bookings[bookings.length-1][1]),
+          freeUntil: '23:59'
+        };
+      }
+
+      //If time is between two bookings
+      for(let i = 0; i < bookings.length; i++) {
+        if (bookings.length > 1) {
+          if(bookings[i][1] <= time && bookings[i+1][0] > time) {  
+            return {
+              freeFrom: this.formatTime(bookings[i][1]),
+              freeUntil: this.formatTime(bookings[i+1][0])
+            };
           }
         }
       }
-  
-      return {
-        freeFrom: '00:00',
-        freeUntil: '23:59'
-      };
-    }
-  
-    _showTimePicker = () => this.setState({ isTimePickerVisible: true });
-   
-    _hideTimePicker = () => this.setState({ isTimePickerVisible: false });
-   
-    _handleTimePicked = (time) => {
-      this.state.date.setHours(time.getHours())
-      this.state.date.setMinutes(time.getMinutes())
-      this._hideTimePicker();
-    };
-  
-    _showDatePicker = () => this.setState({ isDatePickerVisible: true });
-   
-    _hideDatePicker = () => this.setState({ isDatePickerVisible: false });
-   
-    _handleDatePicked = (date) => {
-      this.setState({ date: date });
-      this._hideDatePicker();
-    };
-  
-    _showDurationPicker = () => this.setState({ isDurationPickerVisible: true });
-  
-    formatDate(date){
-      return date.getDate() + " " + Months[this.state.language][date.getMonth()];
-    }
-  
-    formatTime(time) {
-      const hours = time.getHours();
-      const minutes = time.getMinutes();
-      return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
-    }
-  
-    setNowText(freeFrom) {
-      let freeFromDate = new Date(this.state.date);
-      let now = new Date();
-      freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
-      return (this.isToday(this.state.date) && now >= freeFromDate) ? nowText[this.state.language] : freeFrom;
-    }
-  
-    isToday(date) {
-      let today = new Date();
-      return date.toDateString() == today.toDateString()
     }
 
-    getDateWithoutTime = (date) => {
-      let d = new Date(date);
-    	d.setHours(0, 0, 0, 0);
-      return d;
+    return {
+      freeFrom: '00:00',
+      freeUntil: '23:59'
+    };
+  }
+
+  _showTimePicker = () => this.setState({ isTimePickerVisible: true });
+
+  _hideTimePicker = () => this.setState({ isTimePickerVisible: false });
+
+  _handleTimePicked = (time) => {
+    this.state.date.setHours(time.getHours())
+    this.state.date.setMinutes(time.getMinutes())
+    this._hideTimePicker();
+  };
+
+  _showDatePicker = () => this.setState({ isDatePickerVisible: true });
+
+  _hideDatePicker = () => this.setState({ isDatePickerVisible: false });
+
+  _handleDatePicked = (date) => {
+    this.setState({ date: date });
+    this._hideDatePicker();
+  };
+
+  _showDurationPicker = () => this.setState({ isDurationPickerVisible: true });
+
+  formatDate(date){
+    return date.getDate() + " " + Months[this.state.language][date.getMonth()];
+  }
+
+  formatTime(time) {
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
+    return `${hours > 9 ? hours : ('0'+hours)}:${minutes > 9 ? minutes : '0'+minutes}` 
+  }
+
+  setNowText(freeFrom) {
+    let freeFromDate = new Date(this.state.date);
+    let now = new Date();
+    freeFromDate.setHours(parseInt(freeFrom.split(':')[0]), parseInt(freeFrom.split(':')[1]));
+    return (this.isToday(this.state.date) && now >= freeFromDate) ? nowText[this.state.language] : freeFrom;
+  }
+
+  isToday(date) {
+    let today = new Date();
+    return date.toDateString() == today.toDateString()
+  }
+
+  getDateWithoutTime = (date) => {
+    let d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  render() {
+    if (!this.state.loaded || this.state.events === null) {
+      return <Expo.AppLoading />;
     }
-  
-    render() {
-      if (!this.state.loaded || this.state.events === null) {
-        return <Expo.AppLoading />;
-      }
-      
-      const { events } = this.state;
-      const { navigate } = this.props.navigation;
-  
-      const dateEvents = this.getEventsByDay(events, this.state.date);
-  
-      const mapped = this.mapEventsByLocation(dateEvents);
-  
-      const availableRooms = this.getAvailableRooms(mapped, this.state.date);
-  
-      return (
-        <View style={styles.container}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.headerText}>Chalmers</Text>
-            <Text style={styles.headerText}>Grupprum</Text>
-          </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={() => this.setState({ location: 1 })} activeOpacity={1} style={this.state.location === 1 ? styles.buttonActive :  styles.buttonInactive}>
-              <Text style={styles.text}>{Locations[0]}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => this.setState({ location: 2 })} activeOpacity={1} style={this.state.location === 2 ? styles.buttonActive :  styles.buttonInactive}>
-              <Text style={styles.text}>{Locations[1]}</Text>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.buttonContainer}>
-            <View style={styles.dateText}>
-            <TouchableOpacity onPress={this._showDatePicker} activeOpacity={1} style={styles.buttonActive}>
-              <Text style={styles.text}>{this.formatDate(this.state.date).toUpperCase()}</Text>
-              </TouchableOpacity>
-              <DateTimePicker
-                mode='date'
-                date={this.state.date}
-                isVisible={this.state.isDatePickerVisible}
-                onConfirm={this._handleDatePicked}
-                onCancel={this._hideDatePicker}
-                datePickerModeAndroid={'default'}
-              />
-            </View>
-            <TouchableOpacity onPress={this._showTimePicker} activeOpacity={1} style={styles.buttonActive}>
-              <Text style={styles.text}>{this.formatTime(this.state.date)}</Text>
+    
+    const { events } = this.state;
+    const { navigate } = this.props.navigation;
+
+    const dateEvents = this.getEventsByDay(events, this.state.date);
+
+    const mapped = this.mapEventsByLocation(dateEvents);
+
+    const availableRooms = this.getAvailableRooms(mapped, this.state.date);
+
+    return (
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>Chalmers</Text>
+          <Text style={styles.headerText}>Grupprum</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={() => this.setState({ location: 1 })} activeOpacity={1} style={this.state.location === 1 ? styles.buttonActive :  styles.buttonInactive}>
+            <Text style={styles.text}>{Locations[0]}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => this.setState({ location: 2 })} activeOpacity={1} style={this.state.location === 2 ? styles.buttonActive :  styles.buttonInactive}>
+            <Text style={styles.text}>{Locations[1]}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.buttonContainer}>
+          <View style={styles.dateText}>
+          <TouchableOpacity onPress={this._showDatePicker} activeOpacity={1} style={styles.buttonActive}>
+            <Text style={styles.text}>{this.formatDate(this.state.date).toUpperCase()}</Text>
             </TouchableOpacity>
             <DateTimePicker
-              mode='time'
+              mode='date'
               date={this.state.date}
-              isVisible={this.state.isTimePickerVisible}
-              onConfirm={this._handleTimePicked}
-              onCancel={this._hideTimePicker}
+              isVisible={this.state.isDatePickerVisible}
+              onConfirm={this._handleDatePicked}
+              onCancel={this._hideDatePicker}
               datePickerModeAndroid={'default'}
-              locale='sv-SE'
             />
           </View>
-          <TouchableOpacity onPress={() => navigate('RoomList', {events: availableRooms, language: this.state.language})} style={styles.searchButton}>
-            <Text style={styles.searchButtonText}>{groupRoomTitle[this.state.language]}</Text>
-            <Image
-                  source={require('../res/img/right-arrow.png')}
-                  style={styles.bookingIcon}
-              />
+          <TouchableOpacity onPress={this._showTimePicker} activeOpacity={1} style={styles.buttonActive}>
+            <Text style={styles.text}>{this.formatTime(this.state.date)}</Text>
           </TouchableOpacity>
-          </View>
-      );
-    }
+          <DateTimePicker
+            mode='time'
+            date={this.state.date}
+            isVisible={this.state.isTimePickerVisible}
+            onConfirm={this._handleTimePicked}
+            onCancel={this._hideTimePicker}
+            datePickerModeAndroid={'default'}
+            locale='sv-SE'
+          />
+        </View>
+        <TouchableOpacity onPress={() => navigate('RoomList', {events: availableRooms, language: this.state.language})} style={styles.searchButton}>
+          <Text style={styles.searchButtonText}>{groupRoomTitle[this.state.language]}</Text>
+          <Image
+                source={require('../res/img/right-arrow.png')}
+                style={styles.bookingIcon}
+            />
+        </TouchableOpacity>
+        </View>
+    );
+  }
   }
   
   const styles = StyleSheet.create({
