@@ -11,7 +11,7 @@ class RoomListScreen extends Component {
 
   getSections(events) {
     let result = [];
-     for (const key of Object.keys(events)) {
+    for (const key of Object.keys(events)) {
       let obj = {
         title: groupRooms[key],
         data: events[key].sort()
@@ -22,9 +22,9 @@ class RoomListScreen extends Component {
   }
 
   sortEvents(events) {
-    return Object.keys(events).reduce((obj,e) => {
-      let firstLetter = e.substring(0,1) === 'F' ? e.substring(0,1) : e.substring(0,2);
-      const titleString = e.replace(' ','') + " " + events[e].freeFrom + " - " + events[e].freeUntil;
+    return Object.keys(events).reduce((obj, e) => {
+      let firstLetter = e.substring(0, 1) === 'F' ? e.substring(0, 1) : e.substring(0, 2);
+      const titleString = e.replace(' ', '') + " " + events[e].freeFrom + " - " + events[e].freeUntil;
       if (firstLetter === '11') {
         firstLetter = "KG";
       }
@@ -34,7 +34,7 @@ class RoomListScreen extends Component {
         obj[firstLetter].push(titleString);
       }
       return obj;
-    },{});
+    }, {});
   }
 
   render() {
@@ -50,57 +50,57 @@ class RoomListScreen extends Component {
       );
     }
     return (
-       <View style={styles.container}>
-       <Toast
+      <View style={styles.container}>
+        <Toast
           ref="toast"
-          style={{backgroundColor:'black', borderRadius: 10 }}
+          style={{ backgroundColor: 'black', borderRadius: 10 }}
           position='bottom'
           positionValue={200}
           fadeInDuration={200}
           opacity={0.8}
-          textStyle={{color:'white', fontSize: 16}}
+          textStyle={{ color: 'white', fontSize: 16 }}
         />
         <SectionList
-        sections={this.getSections(sortedEvents)}
-        renderItem={({item}) => (
-        <TouchableOpacity onPress={() => navigate('Booking') }>
-          <ListItem item={item} />
-        </TouchableOpacity> )}
-        renderSectionHeader={({section}) => 
-        <View style={styles.headers}>
-          <Text style={styles.sectionHeader}>{section.title}</Text>
-          <Text style={[styles.sectionHeader, styles.sectionHeaderIsFree]}>{timeHeader[language]}</Text>
-        </View>}
-        stickySectionHeadersEnabled={false}
-        keyExtractor={(item, index) => index}
-      />
+          sections={this.getSections(sortedEvents)}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => navigate('Booking')}>
+              <ListItem item={item} />
+            </TouchableOpacity>)}
+          renderSectionHeader={({ section }) =>
+            <View style={styles.headers}>
+              <Text style={styles.sectionHeader}>{section.title}</Text>
+              <Text style={[styles.sectionHeader, styles.sectionHeaderIsFree]}>{timeHeader[language]}</Text>
+            </View>}
+          stickySectionHeadersEnabled={false}
+          keyExtractor={(item, index) => index}
+        />
       </View>
     );
   }
 }
 
 
-const ListItem = AsPure(({item}) => {
+const ListItem = AsPure(({ item }) => {
   return (
-  <View style={styles.item}>
+    <View style={styles.item}>
       <Text style={styles.roomText}>{item.split(' ')[0]}</Text>
       <View style={styles.time}>
         <Text style={styles.timeText}>{`${item.split(' ')[1]} ${item.split(' ')[2]} ${item.split(' ')[3]}`}</Text>
       </View>
       <View style={styles.bookingButton}>
-          <Image
-                source={require('../res/img/right-arrow.png')}
-                style={styles.bookingIcon}
-            />
+        <Image
+          source={require('../res/img/right-arrow.png')}
+          style={styles.bookingIcon}
+        />
       </View>
-  </View>);
+    </View>);
 })
 
 const styles = StyleSheet.create({
   container: {
-   flex: 1,
-   backgroundColor: '#fff',
-   justifyContent: 'center',
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
   },
   headers: {
     flex: 1,
@@ -171,13 +171,13 @@ const styles = StyleSheet.create({
 })
 
 const groupRooms = {
-    F: "FYSIK",
-    M1: "MASKIN",
-    EG: "EDIT",
-    KG: "KEMI",
-    SB: "SB",
-    Sv: "SVEA",
-    Ju: "JUPITER"
+  F: "FYSIK",
+  M1: "MASKIN",
+  EG: "EDIT",
+  KG: "KEMI",
+  SB: "SB",
+  Sv: "SVEA",
+  Ju: "JUPITER"
 }
 
 const timeHeader = {

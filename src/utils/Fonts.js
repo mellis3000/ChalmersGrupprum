@@ -1,3 +1,3 @@
 export const Fonts = {
-    LatoBlack: 'LatoBlack'
+  LatoBlack: 'LatoBlack'
 }

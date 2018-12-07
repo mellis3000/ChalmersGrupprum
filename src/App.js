@@ -8,6 +8,6 @@ export default App = createStackNavigator({
   RoomList: { screen: RoomListScreen },
   Booking: { screen: BookingScreen }
 },
-{
-  initialRouteName: 'Home',
-});
+  {
+    initialRouteName: 'Home',
+  });
