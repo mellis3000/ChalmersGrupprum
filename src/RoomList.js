@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import AsPure from '../as-pure';
-import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity, Clipboard } from 'react-native';
-import Toast, {DURATION} from 'react-native-easy-toast'
+import { SectionList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import Toast from 'react-native-easy-toast';
 
-class RoomList extends Component {
+class RoomListScreen extends Component {
 
   constructor(props) {
     super(props);
@@ -11,7 +11,6 @@ class RoomList extends Component {
 
   getSections(events) {
     let result = [];
-   // Object.keys(events).forEach(key => {
      for (const key of Object.keys(events)) {
       let obj = {
         title: groupRooms[key],
@@ -64,7 +63,7 @@ class RoomList extends Component {
         <SectionList
         sections={this.getSections(sortedEvents)}
         renderItem={({item}) => (
-        <TouchableOpacity onPress={() => { Clipboard.setString(item.split(' ')[0]); this.refs.toast.show('Room name has been copied to clipboard', 250, () => navigate('BookingWeb')) }}>
+        <TouchableOpacity onPress={() => navigate('Booking') }>
           <ListItem item={item} />
         </TouchableOpacity> )}
         renderSectionHeader={({section}) => 
@@ -171,8 +170,6 @@ const styles = StyleSheet.create({
   }
 })
 
-export default RoomList;
-
 const groupRooms = {
     F: "FYSIK",
     M1: "MASKIN",
@@ -192,3 +189,5 @@ const noRooms = {
   sv: "INGA LEDIGA GRUPPRUM",
   en: "NO AVAILABLE ROOMS"
 }
+
+export default RoomListScreen;
