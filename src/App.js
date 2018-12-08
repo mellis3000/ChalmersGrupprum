@@ -1,13 +1,15 @@
-import HomeScreen from './Home.js';
+import { createStackNavigator } from 'react-navigation';
+import HomeScreen from './Home';
 import RoomListScreen from './RoomList.js';
 import BookingScreen from './Booking.js';
-import { createStackNavigator } from 'react-navigation';
 
-export default App = createStackNavigator({
+const App = createStackNavigator({
   Home: { screen: HomeScreen },
   RoomList: { screen: RoomListScreen },
-  Booking: { screen: BookingScreen }
+  Booking: { screen: BookingScreen },
 },
-  {
-    initialRouteName: 'Home',
-  });
+{
+  initialRouteName: 'Home',
+});
+
+export default App;
