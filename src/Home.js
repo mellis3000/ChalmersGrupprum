@@ -284,7 +284,6 @@ class HomeScreen extends React.Component {
   }
 
   mapEvents() {
-    console.log('map events');
     const { events } = this.state;
     const { date } = this.state;
     const { location } = this.state;

@@ -1,7 +1,7 @@
 import { createStackNavigator } from 'react-navigation';
 import HomeScreen from './Home';
 import RoomListScreen from './RoomList';
-import BookingScreen from './Booking';
+import BookingScreen from './BookingWebView';
 
 const App = createStackNavigator({
   Home: { screen: HomeScreen },
