@@ -1,12 +1,7 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-class BookingScreen extends Component {
-
-  constructor(props) {
-    super(props);
-  }
-
+class BookingScreen extends React.PureComponent {
   render() {
     return (
       <View style={styles.container}>
@@ -14,7 +9,6 @@ class BookingScreen extends Component {
       </View>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
