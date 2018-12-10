@@ -4,13 +4,17 @@ import {
 } from 'react-native';
 import Toast from 'react-native-easy-toast';
 import AsPure from '../as-pure';
+import {
+  White, LightGrey,
+} from '../res/values/Styles';
+
 
 const ArrowIcon = require('../res/img/right-arrow.png');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: White,
     justifyContent: 'center',
   },
   headers: {
@@ -19,7 +23,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderColor: '#e0e2e5',
+    borderColor: LightGrey,
     borderBottomWidth: 0.5,
   },
   sectionHeader: {
@@ -36,7 +40,7 @@ const styles = StyleSheet.create({
   },
   item: {
     flexDirection: 'row',
-    borderColor: '#e0e2e5',
+    borderColor: LightGrey,
     borderBottomWidth: 0.5,
   },
   roomText: {
@@ -133,6 +137,7 @@ class RoomListScreen extends Component {
     const { navigate } = navigation;
     const { events } = navigation.state.params;
     const { language } = navigation.state.params;
+    const { date } = navigation.state.params;
     const sortedEvents = sortEvents(events);
     if (Object.keys(events).length === 0) {
       return (
@@ -155,7 +160,7 @@ class RoomListScreen extends Component {
         <SectionList
           sections={getSections(sortedEvents)}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigate('Booking')}>
+            <TouchableOpacity onPress={() => navigate('Booking', { item, language, date })}>
               <ListItem item={item} />
             </TouchableOpacity>)}
           renderSectionHeader={({ section }) => (

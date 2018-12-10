@@ -5,6 +5,9 @@ import {
 } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import { getLocale, parseIcal, loadAssetsAsync } from './utils/Utils';
+import {
+  PrimaryColor, SecondaryColor, DarkGrey, White,
+} from '../res/values/Styles';
 
 const ArrowIcon = require('../res/img/right-arrow.png');
 
@@ -13,7 +16,7 @@ const { AppLoading } = Expo;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: White,
     alignItems: 'center',
     justifyContent: 'space-evenly',
   },
@@ -28,8 +31,8 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderColor: '#3ea8f9',
+    backgroundColor: White,
+    borderColor: PrimaryColor,
     borderWidth: 2,
     padding: 10,
     margin: 15,
@@ -38,14 +41,14 @@ const styles = StyleSheet.create({
   },
   buttonActive: {
     alignItems: 'center',
-    backgroundColor: '#3ea8f9',
+    backgroundColor: PrimaryColor,
     padding: 10,
     margin: 15,
     borderRadius: 20,
   },
   buttonInactive: {
     alignItems: 'center',
-    backgroundColor: '#a7d6f9',
+    backgroundColor: SecondaryColor,
     padding: 10,
     margin: 15,
     borderRadius: 20,
@@ -53,35 +56,27 @@ const styles = StyleSheet.create({
   searchButtonText: {
     fontSize: 16,
     marginRight: 5,
-    color: '#3ea8f9',
+    color: PrimaryColor,
     fontFamily: 'latoBold',
   },
   headerText: {
     fontSize: 40,
-    color: '#3ea8f9',
+    color: PrimaryColor,
     fontFamily: 'montBold',
   },
-  text: {
+  whiteText: {
     fontSize: 16,
-    color: '#fff',
+    color: White,
     fontFamily: 'latoBold',
   },
-  blueText: {
+  primaryText: {
     fontSize: 16,
-    color: '#3ea8f9',
+    color: PrimaryColor,
     fontFamily: 'latoBold',
     alignSelf: 'center',
   },
   dateText: {
     minWidth: 135,
-  },
-  picker: {
-    width: 170,
-    height: 100,
-    backgroundColor: '#3ea8f9',
-  },
-  datePicker: {
-    backgroundColor: '#3ea8f9',
   },
   bookingIcon: {
     height: 20,
@@ -284,7 +279,6 @@ class HomeScreen extends React.Component {
   }
 
   mapEvents() {
-    console.log('map events');
     const { events } = this.state;
     const { date } = this.state;
     const { location } = this.state;
@@ -357,14 +351,14 @@ class HomeScreen extends React.Component {
             activeOpacity={1}
             style={location === 1 ? styles.buttonActive : styles.buttonInactive}
           >
-            <Text style={styles.text}>{locations[0]}</Text>
+            <Text style={styles.whiteText}>{locations[0]}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => this.setState({ location: 2 })}
             activeOpacity={1}
             style={location === 2 ? styles.buttonActive : styles.buttonInactive}
           >
-            <Text style={styles.text}>{locations[1]}</Text>
+            <Text style={styles.whiteText}>{locations[1]}</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
@@ -374,7 +368,7 @@ class HomeScreen extends React.Component {
               activeOpacity={1}
               style={styles.buttonActive}
             >
-              <Text style={styles.text}>{formatDate(date, language).toUpperCase()}</Text>
+              <Text style={styles.whiteText}>{formatDate(date, language).toUpperCase()}</Text>
             </TouchableOpacity>
             <DateTimePicker
               mode="date"
@@ -390,7 +384,7 @@ class HomeScreen extends React.Component {
             activeOpacity={1}
             style={styles.buttonActive}
           >
-            <Text style={styles.text}>{formatTime(date)}</Text>
+            <Text style={styles.whiteText}>{formatTime(date)}</Text>
           </TouchableOpacity>
           <DateTimePicker
             mode="time"
@@ -402,7 +396,7 @@ class HomeScreen extends React.Component {
             locale="sv-SE"
           />
         </View>
-        <TouchableOpacity onPress={() => navigate('RoomList', { events: this.mapEvents(), language })} style={styles.searchButton}>
+        <TouchableOpacity onPress={() => navigate('RoomList', { events: this.mapEvents(), language, date })} style={styles.searchButton}>
           <Text style={styles.searchButtonText}>{groupRoomTitle[language]}</Text>
           <Image
             source={ArrowIcon}
