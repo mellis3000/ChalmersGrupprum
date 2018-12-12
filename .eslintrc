@@ -4,6 +4,7 @@
   "rules": {
     "no-restricted-syntax": 0,
     "no-param-reassign": 0,
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/prefer-stateless-function": 0
 }
 }

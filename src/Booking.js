@@ -1,4 +1,6 @@
 import React from 'react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import {
   StyleSheet, Text, View, TouchableOpacity,
 } from 'react-native';
@@ -65,6 +67,16 @@ const styles = StyleSheet.create({
     color: DarkGrey,
     alignSelf: 'flex-start',
   },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
+    fontFamily: 'montBold',
+  },
+  successText: {
+    fontSize: 20,
+    color: PrimaryColor,
+    fontFamily: 'montBold',
+  },
 });
 
 const bookingTitle = {
@@ -79,6 +91,13 @@ const convertMinutesToTimestamp = (min) => {
 };
 
 const convertTimestamptoMinutes = time => parseInt(time.split(':')[0], 0) * 60 + parseInt(time.split(':')[1], 0);
+
+
+const getDateString = (date) => {
+  const newDate = new Date(date);
+  return `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}`;
+};
+
 
 class BookingScreen extends React.PureComponent {
   constructor(props) {
@@ -96,6 +115,8 @@ class BookingScreen extends React.PureComponent {
       endTimeInMin: item.split(' ')[3] === '23:59' ? convertTimestamptoMinutes('18:00') : convertTimestamptoMinutes(item.split(' ')[3]),
       multiSliderValue: [480, 1020],
       bookingButtonDisabled: false,
+      responseMessage: '',
+      successfullyBooked: false,
     };
   }
 
@@ -113,9 +134,34 @@ class BookingScreen extends React.PureComponent {
     });
   };
 
+  async makeBooking() {
+    const {
+      date, room, multiSliderValue,
+    } = this.state;
+    const { book } = this.props;
+
+    const booking = {
+      roomName: room,
+      date: getDateString(date),
+      from: convertMinutesToTimestamp(multiSliderValue[0]),
+      to: convertMinutesToTimestamp(multiSliderValue[1]),
+    };
+
+    const { error } = await book(booking.roomName, booking.date, booking.from, booking.to);
+
+    if (error) {
+      this.setState({ responseMessage: error });
+    } else {
+      this.setState({
+        successfullyBooked: true,
+        bookingButtonDisabled: true,
+      });
+    }
+  }
+
   render() {
     const {
-      room, language, multiSliderValue, startTimeInMin, endTimeInMin, bookingButtonDisabled,
+      room, language, multiSliderValue, startTimeInMin, endTimeInMin, bookingButtonDisabled, responseMessage, successfullyBooked,
     } = this.state;
 
     return (
@@ -170,7 +216,7 @@ class BookingScreen extends React.PureComponent {
           snapped
         />
         <TouchableOpacity
-          onPress={() => console.log('boka')}
+          onPress={() => this.makeBooking()}
           disabled={bookingButtonDisabled}
           style={bookingButtonDisabled ? styles.searchButtonInActive : styles.searchButtonActive}
         >
@@ -178,9 +224,30 @@ class BookingScreen extends React.PureComponent {
             {bookingTitle[language]}
           </Text>
         </TouchableOpacity>
+        <Text style={styles.errorText}>
+          {responseMessage ? 'Something went wrong.' : ''}
+        </Text>
+        <Text style={styles.successText}>
+          {successfullyBooked ? 'Room booked! :)' : ''}
+        </Text>
       </View>
     );
   }
 }
 
-export default BookingScreen;
+export default graphql(
+  gql`
+    mutation book($roomName: String, $date: String, $from: String, $to: String) {
+      book(roomName: $roomName, date: $date, from: $from, to: $to)
+    }
+  `,
+  {
+    props: ({ mutate }) => ({
+      book: (roomName, date, from, to) => mutate({
+        variables: {
+          roomName, date, from, to,
+        },
+      }),
+    }),
+  },
+)(BookingScreen);
