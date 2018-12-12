@@ -50,6 +50,7 @@
     "react-native-navybits-date-time-picker": "^1.1.8",
     "react-native-snap-slider": "^0.3.0",
     "react-navigation": "^2.0.4",
+    "react-navigation-backhandler": "^1.2.0",
     "typeface-lato": "0.0.54"
   },
   "rnpm": {

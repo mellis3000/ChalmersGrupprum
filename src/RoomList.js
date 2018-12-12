@@ -135,9 +135,9 @@ class RoomListScreen extends Component {
   render() {
     const { navigation } = this.props; // eslint-disable-line
     const { navigate } = navigation;
-    const { events } = navigation.state.params;
-    const { language } = navigation.state.params;
-    const { date } = navigation.state.params;
+    const {
+      events, language, date, refresh,
+    } = navigation.state.params;
     const sortedEvents = sortEvents(events);
     if (Object.keys(events).length === 0) {
       return (
@@ -160,7 +160,10 @@ class RoomListScreen extends Component {
         <SectionList
           sections={getSections(sortedEvents)}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigate('Booking', { item, language, date })}>
+            <TouchableOpacity onPress={() => navigate('Booking', {
+              refresh, item, language, date,
+            })}
+            >
               <ListItem item={item} />
             </TouchableOpacity>)}
           renderSectionHeader={({ section }) => (

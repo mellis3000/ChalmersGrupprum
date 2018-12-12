@@ -5,9 +5,11 @@ import {
   StyleSheet, Text, View, TouchableOpacity,
 } from 'react-native';
 import MultiSlider from 'react-native-multi-slider-cloneable';
+import { AndroidBackHandler } from 'react-navigation-backhandler';
 import {
   PrimaryColor, SecondaryColor, DarkGrey, White,
 } from '../res/values/Styles';
+import { bookingTitle } from './utils/Constants';
 
 const styles = StyleSheet.create({
   container: {
@@ -71,18 +73,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'red',
     fontFamily: 'montBold',
+    alignSelf: 'center',
   },
   successText: {
     fontSize: 20,
     color: PrimaryColor,
     fontFamily: 'montBold',
+    alignSelf: 'center',
   },
 });
 
-const bookingTitle = {
-  sv: 'BOKA RUM',
-  en: 'BOOK ROOM',
-};
 
 const convertMinutesToTimestamp = (min) => {
   const hours = Math.floor(min / 60);
@@ -97,9 +97,30 @@ const getDateString = (date) => {
   const newDate = new Date(date);
   return `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}`;
 };
+const getClosestQuarterInMinutes = (minutes) => {
+  const wholeQuarters = Math.floor(minutes / 15);
+  const quartersInMinutes = wholeQuarters * 15;
+  return quartersInMinutes;
+};
+
+const adjustTime = (time) => {
+  if (time === 'Nu' || time === 'Now') {
+    const now = new Date();
+    const nowInMinutes = now.getHours() * 60 + now.getMinutes();
+    const closestQuarter = getClosestQuarterInMinutes(nowInMinutes);
+    return (closestQuarter >= 60 * 23) ? (60 * 23) : closestQuarter;
+  }
+  if (time === '00:00') {
+    return convertTimestamptoMinutes('07:00');
+  }
+  if (time === '23:59') {
+    return convertTimestamptoMinutes('23:00');
+  }
+  return convertTimestamptoMinutes(time);
+};
 
 
-class BookingScreen extends React.PureComponent {
+class BookingScreen extends React.Component {
   constructor(props) {
     super(props);
 
@@ -110,13 +131,13 @@ class BookingScreen extends React.PureComponent {
       language,
       date: new Date(date),
       room: item.split(' ')[0],
-      startTimeInMin: item.split(' ')[1] === 'Nu' || item.split(' ')[1] === 'Now' || item.split(' ')[1] === '00:00'
-        ? convertTimestamptoMinutes('07:00') : convertTimestamptoMinutes(item.split(' ')[1]),
-      endTimeInMin: item.split(' ')[3] === '23:59' ? convertTimestamptoMinutes('18:00') : convertTimestamptoMinutes(item.split(' ')[3]),
+      startTimeInMin: adjustTime(item.split(' ')[1]),
+      endTimeInMin: adjustTime(item.split(' ')[3]),
       multiSliderValue: [480, 1020],
       bookingButtonDisabled: false,
-      responseMessage: '',
+      error: false,
       successfullyBooked: false,
+      loading: false,
     };
   }
 
@@ -134,6 +155,16 @@ class BookingScreen extends React.PureComponent {
     });
   };
 
+  onBackButtonPressAndroid = () => {
+    const { successfullyBooked } = this.state;
+    if (successfullyBooked) {
+      const { navigation } = this.props; // eslint-disable-line
+      navigation.popToTop();
+      return true;
+    }
+    return false;
+  };
+
   async makeBooking() {
     const {
       date, room, multiSliderValue,
@@ -147,90 +178,109 @@ class BookingScreen extends React.PureComponent {
       to: convertMinutesToTimestamp(multiSliderValue[1]),
     };
 
-    const { error } = await book(booking.roomName, booking.date, booking.from, booking.to);
+    try {
+      this.setState({ loading: true, bookingButtonDisabled: true });
+      await book(booking.roomName, booking.date, booking.from, booking.to);
+    } catch (e) {
+      console.log(e);
+      this.setState({ error: true, loading: false });
+      return false;
+    }
+    return true;
+  }
 
-    if (error) {
-      this.setState({ responseMessage: error });
-    } else {
+  handleFeedback() {
+    const { navigation } = this.props; // eslint-disable-line
+    const { error } = this.state;
+    if (!error) {
       this.setState({
         successfullyBooked: true,
-        bookingButtonDisabled: true,
+        loading: false,
       });
+      navigation.state.params.refresh();
     }
   }
 
   render() {
     const {
-      room, language, multiSliderValue, startTimeInMin, endTimeInMin, bookingButtonDisabled, responseMessage, successfullyBooked,
+      room, language, multiSliderValue, startTimeInMin, endTimeInMin,
+      bookingButtonDisabled, error, successfullyBooked, loading,
     } = this.state;
 
+    if (loading) {
+      // return <AppLoading />; // eslint-disable-line
+    }
     return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Text style={styles.headerText}>{room}</Text>
+      <AndroidBackHandler onBackPress={this.onBackButtonPressAndroid}>
+        <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerText}>{room}</Text>
+          </View>
+          <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={styles.text}>{convertMinutesToTimestamp(multiSliderValue[0])}</Text>
+            <Text style={styles.text}>{convertMinutesToTimestamp(multiSliderValue[1])}</Text>
+          </View>
+          <MultiSlider
+            values={[
+              multiSliderValue[0],
+              multiSliderValue[1],
+            ]}
+            selectedStyle={{
+              backgroundColor: PrimaryColor,
+            }}
+            unselectedStyle={{
+              backgroundColor: 'silver',
+            }}
+            containerStyle={{
+              width: '80%',
+            }}
+            touchDimensions={{
+              height: 100,
+              width: 100,
+              borderRadius: 30,
+              slipDisplacement: 40,
+            }}
+            markerStyle={{
+              height: 30,
+              width: 30,
+              borderRadius: 30,
+              borderWidth: 1,
+              borderColor: 'silver',
+              backgroundColor: White,
+              shadowColor: '#000000',
+              shadowOffset: {
+                width: 0,
+                height: 3,
+              },
+              shadowRadius: 1,
+              shadowOpacity: 0.2,
+            }}
+            onValuesChange={this.multiSliderValuesChange}
+            min={startTimeInMin}
+            max={endTimeInMin}
+            step={15}
+            allowOverlap={false}
+            snapped
+          />
+          <TouchableOpacity
+            onPress={() => this.makeBooking().then(() => this.handleFeedback())}
+            disabled={bookingButtonDisabled}
+            style={bookingButtonDisabled ? styles.searchButtonInActive : styles.searchButtonActive}
+          >
+            <Text style={bookingButtonDisabled ? styles.inactiveText : styles.activeText}>
+              {bookingTitle[language]}
+            </Text>
+          </TouchableOpacity>
+          <View style={{ width: '100%', height: 16 }}>
+            <Text style={styles.errorText}>
+              {error ? 'Booking could not be made' : ''}
+            </Text>
+            <Text style={styles.successText}>
+              {successfullyBooked ? 'Room booked! :)' : ''}
+            </Text>
+          </View>
         </View>
-        <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={styles.text}>{convertMinutesToTimestamp(multiSliderValue[0])}</Text>
-          <Text style={styles.text}>{convertMinutesToTimestamp(multiSliderValue[1])}</Text>
-        </View>
-        <MultiSlider
-          values={[
-            multiSliderValue[0],
-            multiSliderValue[1],
-          ]}
-          selectedStyle={{
-            backgroundColor: PrimaryColor,
-          }}
-          unselectedStyle={{
-            backgroundColor: 'silver',
-          }}
-          containerStyle={{
-            width: '80%',
-          }}
-          touchDimensions={{
-            height: 100,
-            width: 100,
-            borderRadius: 30,
-            slipDisplacement: 40,
-          }}
-          markerStyle={{
-            height: 30,
-            width: 30,
-            borderRadius: 30,
-            borderWidth: 1,
-            borderColor: 'silver',
-            backgroundColor: White,
-            shadowColor: '#000000',
-            shadowOffset: {
-              width: 0,
-              height: 3,
-            },
-            shadowRadius: 1,
-            shadowOpacity: 0.2,
-          }}
-          onValuesChange={this.multiSliderValuesChange}
-          min={startTimeInMin}
-          max={endTimeInMin}
-          step={15}
-          allowOverlap={false}
-          snapped
-        />
-        <TouchableOpacity
-          onPress={() => this.makeBooking()}
-          disabled={bookingButtonDisabled}
-          style={bookingButtonDisabled ? styles.searchButtonInActive : styles.searchButtonActive}
-        >
-          <Text style={bookingButtonDisabled ? styles.inactiveText : styles.activeText}>
-            {bookingTitle[language]}
-          </Text>
-        </TouchableOpacity>
-        <Text style={styles.errorText}>
-          {responseMessage ? 'Something went wrong.' : ''}
-        </Text>
-        <Text style={styles.successText}>
-          {successfullyBooked ? 'Room booked! :)' : ''}
-        </Text>
-      </View>
+      </AndroidBackHandler>
     );
   }
 }

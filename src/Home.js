@@ -4,10 +4,15 @@ import {
   StyleSheet, Text, View, TouchableOpacity, Image,
 } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import { getLocale, parseIcal } from './utils/Utils';
 import {
   PrimaryColor, SecondaryColor, White,
 } from '../res/values/Styles';
+import {
+  getLocale, parseIcal,
+} from './utils/Utils';
+import {
+  months, rooms, locations, groupRoomTitle, nowText,
+} from './utils/Constants';
 
 const ArrowIcon = require('../res/img/right-arrow.png');
 
@@ -85,28 +90,6 @@ const styles = StyleSheet.create({
   },
 
 });
-
-const rooms = {
-  1: ['1198', 'EG-2515', 'EG-2516', 'EG-3217', 'EG-3503', 'EG-3504', 'EG-3505', 'EG-3506', 'EG-3507', 'EG-3508', 'EG-4205', 'EG-4207', 'EG-5205', 'EG-5207', 'EG-5209', 'EG-5211', 'EG-5213', 'EG-5215', 'EG-6205', 'EG-6207', 'EG-6209', 'EG-6211', 'EG-6213', 'EG-6215', 'F4051', 'F4052', 'F4053', 'F4054', 'F4055', 'F4056', 'F4057', 'F4058', 'F4113', 'F4114', 'F4115', 'KG31', 'KG32', 'KG33', 'KG34', 'KG35', 'KG51', 'KG52', 'KG53', 'KG54', 'M1203A', 'M1203B', 'M1203C', 'M1203D', 'M1203E', 'M1204', 'M1205', 'M1206A', 'M1206B', 'M1208A', 'M1208C', 'M1211', 'M1212A', 'M1212B', 'M1212C', 'M1212D', 'M1212E', 'M1212F', 'M1213A', 'M1213B', 'M1215A', 'M1215B', 'M1215C', 'M1215D', 'M1222A', 'M1222B', 'SB-G065', 'SB-G301', 'SB-G302', 'SB-G303', 'SB-G304', 'SB-G305', 'SB-G306', 'SB-G310', 'SB-G311', 'SB-G312', 'SB-G313', 'SB-G502', 'SB-G503', 'SB-G505', 'SB-G506', 'SB-G510', 'SB-G511', 'SB-G512', 'SB-G513'],
-  2: ['Jupiter123', 'Jupiter144', 'Jupiter146', 'Jupiter147', 'Svea 218', 'Svea 238', 'Svea227', 'Svea229A', 'Svea229B', 'Svea229C'],
-};
-
-const months = {
-  sv: ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December'],
-  en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-};
-
-const locations = ['JOHANNEBERG', 'LINDHOLMEN'];
-
-const groupRoomTitle = {
-  sv: 'VISA LEDIGA GRUPPRUM',
-  en: 'SHOW AVAILABLE ROOMS',
-};
-
-const nowText = {
-  sv: 'Nu',
-  en: 'Now',
-};
 
 const formatDate = (date, language) => `${date.getDate()} ${months[language][date.getMonth()]}`;
 
@@ -208,8 +191,8 @@ class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      language: 'en',
       events: null,
+      language: 'en',
       location: 1,
       isTimePickerVisible: false,
       isDatePickerVisible: false,
@@ -222,14 +205,12 @@ class HomeScreen extends React.Component {
     this.hideTimePicker = this.hideTimePicker.bind(this);
     this.handleDatePicked = this.handleDatePicked.bind(this);
     this.handleTimePicked = this.handleTimePicked.bind(this);
+    this.refreshEvents = this.refreshEvents.bind(this);
   }
 
   componentDidMount() {
-    parseIcal().then((events) => {
-      this.setState({ events });
-      this.mapEvents();
-    });
     getLocale().then(language => this.setState({ language: language.substring(0, 2) }));
+    this.refreshEvents();
   }
 
   setNowText(freeFrom) {
@@ -276,8 +257,13 @@ class HomeScreen extends React.Component {
     return roomEvents;
   }
 
-  mapEvents() {
-    const { events } = this.state;
+  refreshEvents() {
+    parseIcal().then((events) => {
+      this.setState({ events });
+    });
+  }
+
+  mapEvents(events) {
     const { date } = this.state;
     const { location } = this.state;
 
@@ -325,10 +311,11 @@ class HomeScreen extends React.Component {
   }
 
   render() {
-    const {
-      events, date, location, language, isDatePickerVisible, isTimePickerVisible,
-    } = this.state;
     const { navigate } = this.props.navigation; // eslint-disable-line
+
+    const {
+      date, location, isDatePickerVisible, isTimePickerVisible, events, language,
+    } = this.state;
 
     if (events === null) {
       return <AppLoading />; // eslint-disable-line
@@ -390,7 +377,12 @@ class HomeScreen extends React.Component {
             locale="sv-SE"
           />
         </View>
-        <TouchableOpacity onPress={() => navigate('RoomList', { events: this.mapEvents(), language, date })} style={styles.searchButton}>
+        <TouchableOpacity
+          onPress={() => navigate('RoomList', {
+            refresh: this.refreshEvents, events: this.mapEvents(events), language, date,
+          })}
+          style={styles.searchButton}
+        >
           <Text style={styles.searchButtonText}>{groupRoomTitle[language]}</Text>
           <Image
             source={ArrowIcon}
