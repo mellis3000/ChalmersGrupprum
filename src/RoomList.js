@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
   SectionList, Text, View, Image, TouchableOpacity,
 } from 'react-native';
-import Toast from 'react-native-easy-toast';
 import AsPure from '../as-pure';
 import { noRooms, timeHeader, groupRooms } from './utils/Constants';
 import { styles } from './utils/Styles';
@@ -52,15 +51,6 @@ class RoomListScreen extends Component {
     }
     return (
       <View style={styles.roomListcontainer}>
-        <Toast
-          ref="toast" // eslint-disable-line
-          style={{ backgroundColor: 'black', borderRadius: 10 }}
-          position="bottom"
-          positionValue={200}
-          fadeInDuration={200}
-          opacity={0.8}
-          textStyle={{ color: 'white', fontSize: 16 }}
-        />
         <SectionList
           sections={getSections(sortedEvents)}
           renderItem={({ item }) => (

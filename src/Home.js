@@ -1,9 +1,10 @@
 import React from 'react';
 import * as Expo from 'expo';
 import {
-  Text, View, TouchableOpacity, Image,
+  Text, View, TouchableOpacity, Image, NetInfo,
 } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import Toast, { DURATION } from 'react-native-easy-toast';
 import {
   getLocale, parseIcal,
 } from './utils/Utils';
@@ -133,10 +134,21 @@ class HomeScreen extends React.Component {
     this.refreshEvents = this.refreshEvents.bind(this);
   }
 
+
   componentDidMount() {
     getLocale().then(language => this.setState({ language: language.substring(0, 2) }));
     this.refreshEvents();
+    this.getConnectionStatus();
   }
+
+
+  getConnectionStatus = () => {
+    NetInfo.getConnectionInfo().then((connectionInfo) => {
+      if (connectionInfo.type === 'none' || connectionInfo.type === 'unknown') {
+        this.toast.show('You are offline.', DURATION.FOREVER);
+      }
+    });
+  };
 
   setNowText(freeFrom) {
     const { date } = this.state;
@@ -314,6 +326,15 @@ class HomeScreen extends React.Component {
             style={styles.bookingIcon}
           />
         </TouchableOpacity>
+        <Toast
+          ref={(c) => { this.toast = c; }} // eslint-disable-line
+          style={{ backgroundColor: 'black', borderRadius: 10 }}
+          position="bottom"
+          positionValue={200}
+          fadeInDuration={200}
+          opacity={0.8}
+          textStyle={{ color: 'white', fontSize: 16 }}
+        />
       </View>
     );
   }
