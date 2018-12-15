@@ -104,7 +104,7 @@ export default class App extends React.Component {
     return (
       <ApolloProvider client={client}>
         {loggedIn
-          ? <AppLoginNavigator screenProps={{ changeLoginState: this.handleChangeLoginState }} />
+          ? <AppNavigator screenProps={{ changeLoginState: this.handleChangeLoginState }} />
           : <AppLoginNavigator screenProps={{ changeLoginState: this.handleChangeLoginState }} />}
       </ApolloProvider>
     );
