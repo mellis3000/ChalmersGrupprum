@@ -4,7 +4,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import {
-  PrimaryColor, SecondaryColor, White, LightGrey, DarkGrey,
+  PrimaryColor, SecondaryColor, White, LightGrey, DarkGrey, Red,
 } from '../../res/values/Styles';
 
 export const styles = StyleSheet.create({
@@ -13,6 +13,12 @@ export const styles = StyleSheet.create({
     backgroundColor: White,
     alignItems: 'center',
     justifyContent: 'space-evenly',
+  },
+  loginContainer: {
+    flex: 1,
+    backgroundColor: White,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   roomListcontainer: {
     flex: 1,
@@ -182,7 +188,7 @@ export const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: 'red',
+    color: Red,
     fontFamily: 'montBold',
     alignSelf: 'center',
   },
@@ -217,6 +223,13 @@ export const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: PrimaryColor,
+    height: 45,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    width: 250,
+    borderRadius: 30,
   },
   loginText: {
     color: White,

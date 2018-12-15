@@ -6,10 +6,8 @@ import {
   View,
   TextInput,
   TouchableHighlight,
-  ActivityIndicator,
 } from 'react-native';
 import { styles } from './utils/Styles';
-import { PrimaryColor } from '../res/values/Styles';
 
 class Login extends React.Component {
   constructor(props) {
@@ -20,7 +18,6 @@ class Login extends React.Component {
       username: '',
       usernameError: false,
       passwordError: false,
-      loading: false,
     };
   }
 
@@ -39,18 +36,22 @@ class Login extends React.Component {
 
     this.setState({ passwordError: false });
 
-    const { data } = await login(username, password);
-
-    screenProps.changeLoginState(true, data.login.token);
-
-    return data;
+    try {
+      const { data } = await login(username, password);
+      screenProps.changeLoginState(true, data.login.token);
+      return data;
+    } catch (error) {
+      console.log(error);
+      this.setState({ passwordError: true });
+      return false;
+    }
   }
 
   render() {
-    const { usernameError, passwordError, loading } = this.state;
+    const { usernameError, passwordError } = this.state;
     return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
+      <View style={styles.loginContainer}>
+        <View style={[{ marginBottom: 50 }, styles.headerContainer]}>
           <Text style={styles.headerText}>Chalmers</Text>
           <Text style={styles.headerText}>Grupprum</Text>
         </View>
@@ -72,20 +73,15 @@ class Login extends React.Component {
             onChangeText={passwordInput => this.setState({ password: passwordInput })}
           />
         </View>
-        <TouchableHighlight
-          style={[styles.buttonContainer, styles.loginButton]}
-          onPress={() => this.onLogin()}
-        >
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableHighlight>
-        <Text style={styles.errorText}>{(usernameError || passwordError) ? 'Invalid username or password' : ''}</Text>
-        {loading
-    && (
-    <View style={styles.loading}>
-      <ActivityIndicator size="large" color={PrimaryColor} />
-    </View>
-    )
-}
+        <View style={{ height: 80 }}>
+          <TouchableHighlight
+            style={styles.loginButton}
+            onPress={() => this.onLogin()}
+          >
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableHighlight>
+          <Text style={styles.errorText}>{(usernameError || passwordError) ? 'Invalid username or password' : ''}</Text>
+        </View>
       </View>
     );
   }
