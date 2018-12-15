@@ -2,86 +2,15 @@ import React from 'react';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import {
-  StyleSheet, Text, View, TouchableOpacity,
+  Text, View, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
 import MultiSlider from 'react-native-multi-slider-cloneable';
 import { AndroidBackHandler } from 'react-navigation-backhandler';
 import {
-  PrimaryColor, SecondaryColor, DarkGrey, White,
+  PrimaryColor, White,
 } from '../res/values/Styles';
-import { bookingTitle } from './utils/Constants';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: White,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-  },
-  headerContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 120,
-  },
-  searchButtonActive: {
-    alignItems: 'center',
-    backgroundColor: White,
-    borderColor: PrimaryColor,
-    borderWidth: 2,
-    padding: 10,
-    margin: 15,
-    borderRadius: 20,
-    flexDirection: 'row',
-  },
-  searchButtonInActive: {
-    alignItems: 'center',
-    backgroundColor: White,
-    borderColor: SecondaryColor,
-    borderWidth: 2,
-    padding: 10,
-    margin: 15,
-    borderRadius: 20,
-    flexDirection: 'row',
-  },
-  headerText: {
-    fontSize: 40,
-    color: PrimaryColor,
-    fontFamily: 'montBold',
-  },
-  inactiveText: {
-    fontSize: 16,
-    color: SecondaryColor,
-    fontFamily: 'latoBold',
-    alignSelf: 'center',
-  },
-  activeText: {
-    fontSize: 16,
-    color: PrimaryColor,
-    fontFamily: 'latoBold',
-    alignSelf: 'center',
-  },
-  text: {
-    fontSize: 16,
-    color: DarkGrey,
-    alignSelf: 'flex-start',
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
-    fontFamily: 'montBold',
-    alignSelf: 'center',
-  },
-  successText: {
-    fontSize: 20,
-    color: PrimaryColor,
-    fontFamily: 'montBold',
-    alignSelf: 'center',
-  },
-});
+import { bookingTitle, bookingFailed, bookingSucceeded } from './utils/Constants';
+import { styles } from './utils/Styles';
 
 
 const convertMinutesToTimestamp = (min) => {
@@ -133,7 +62,7 @@ class BookingScreen extends React.Component {
       room: item.split(' ')[0],
       startTimeInMin: adjustTime(item.split(' ')[1]),
       endTimeInMin: adjustTime(item.split(' ')[3]),
-      multiSliderValue: [480, 1020],
+      multiSliderValue: [adjustTime(item.split(' ')[1]), adjustTime(item.split(' ')[3])],
       bookingButtonDisabled: false,
       error: false,
       successfullyBooked: false,
@@ -143,7 +72,8 @@ class BookingScreen extends React.Component {
 
   componentDidMount() {
     const { startTimeInMin } = this.state;
-    this.setState({ multiSliderValue: [startTimeInMin, startTimeInMin + 240] });
+    const endTime = startTimeInMin + 240 > 60 * 23 ? 60 * 23 : startTimeInMin + 240;
+    this.setState({ multiSliderValue: [startTimeInMin, endTime] });
   }
 
   multiSliderValuesChange = (values) => {
@@ -206,10 +136,6 @@ class BookingScreen extends React.Component {
       room, language, multiSliderValue, startTimeInMin, endTimeInMin,
       bookingButtonDisabled, error, successfullyBooked, loading,
     } = this.state;
-
-    if (loading) {
-      // return <AppLoading />; // eslint-disable-line
-    }
     return (
       <AndroidBackHandler onBackPress={this.onBackButtonPressAndroid}>
         <View style={styles.container}>
@@ -273,13 +199,20 @@ class BookingScreen extends React.Component {
           </TouchableOpacity>
           <View style={{ width: '100%', height: 16 }}>
             <Text style={styles.errorText}>
-              {error ? 'Booking could not be made' : ''}
+              {error ? bookingFailed[language] : ''}
             </Text>
             <Text style={styles.successText}>
-              {successfullyBooked ? 'Room booked! :)' : ''}
+              {successfullyBooked ? bookingSucceeded[language] : ''}
             </Text>
           </View>
         </View>
+        {loading
+    && (
+    <View style={styles.loading}>
+      <ActivityIndicator size="large" color={PrimaryColor} />
+    </View>
+    )
+}
       </AndroidBackHandler>
     );
   }

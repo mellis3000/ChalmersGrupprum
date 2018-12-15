@@ -1,95 +1,20 @@
 import React from 'react';
 import * as Expo from 'expo';
 import {
-  StyleSheet, Text, View, TouchableOpacity, Image,
+  Text, View, TouchableOpacity, Image,
 } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {
-  PrimaryColor, SecondaryColor, White,
-} from '../res/values/Styles';
 import {
   getLocale, parseIcal,
 } from './utils/Utils';
 import {
   months, rooms, locations, groupRoomTitle, nowText,
 } from './utils/Constants';
+import { styles } from './utils/Styles';
 
 const ArrowIcon = require('../res/img/right-arrow.png');
 
 const { AppLoading } = Expo;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: White,
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-  },
-  headerContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 120,
-  },
-  searchButton: {
-    alignItems: 'center',
-    backgroundColor: White,
-    borderColor: PrimaryColor,
-    borderWidth: 2,
-    padding: 10,
-    margin: 15,
-    borderRadius: 20,
-    flexDirection: 'row',
-  },
-  buttonActive: {
-    alignItems: 'center',
-    backgroundColor: PrimaryColor,
-    padding: 10,
-    margin: 15,
-    borderRadius: 20,
-  },
-  buttonInactive: {
-    alignItems: 'center',
-    backgroundColor: SecondaryColor,
-    padding: 10,
-    margin: 15,
-    borderRadius: 20,
-  },
-  searchButtonText: {
-    fontSize: 16,
-    marginRight: 5,
-    color: PrimaryColor,
-    fontFamily: 'latoBold',
-  },
-  headerText: {
-    fontSize: 40,
-    color: PrimaryColor,
-    fontFamily: 'montBold',
-  },
-  whiteText: {
-    fontSize: 16,
-    color: White,
-    fontFamily: 'latoBold',
-  },
-  primaryText: {
-    fontSize: 16,
-    color: PrimaryColor,
-    fontFamily: 'latoBold',
-    alignSelf: 'center',
-  },
-  dateText: {
-    minWidth: 135,
-  },
-  bookingIcon: {
-    height: 20,
-    width: 20,
-    resizeMode: 'contain',
-  },
-
-});
 
 const formatDate = (date, language) => `${date.getDate()} ${months[language][date.getMonth()]}`;
 

@@ -1,109 +1,13 @@
 import React, { Component } from 'react';
 import {
-  SectionList, StyleSheet, Text, View, Image, TouchableOpacity,
+  SectionList, Text, View, Image, TouchableOpacity,
 } from 'react-native';
 import Toast from 'react-native-easy-toast';
 import AsPure from '../as-pure';
-import {
-  White, LightGrey,
-} from '../res/values/Styles';
-
+import { noRooms, timeHeader, groupRooms } from './utils/Constants';
+import { styles } from './utils/Styles';
 
 const ArrowIcon = require('../res/img/right-arrow.png');
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: White,
-    justifyContent: 'center',
-  },
-  headers: {
-    flex: 1,
-    paddingTop: 15,
-    paddingBottom: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderColor: LightGrey,
-    borderBottomWidth: 0.5,
-  },
-  sectionHeader: {
-    fontSize: 16,
-    flexGrow: 1,
-    fontWeight: 'bold',
-    fontFamily: 'latoBold',
-    marginLeft: 10,
-  },
-  sectionHeaderIsFree: {
-    flexGrow: 0,
-    width: 200,
-    marginLeft: 0,
-  },
-  item: {
-    flexDirection: 'row',
-    borderColor: LightGrey,
-    borderBottomWidth: 0.5,
-  },
-  roomText: {
-    flex: 1,
-    fontSize: 16,
-    fontFamily: 'latoLight',
-    paddingTop: 15,
-    paddingBottom: 15,
-    marginLeft: 10,
-  },
-  time: {
-    flexGrow: 0,
-    width: 160,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    paddingTop: 15,
-    paddingBottom: 15,
-  },
-  bookingButton: {
-    width: 40,
-    flexGrow: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bookingIcon: {
-    height: 25,
-    width: 25,
-    resizeMode: 'contain',
-  },
-  timeText: {
-    fontSize: 16,
-    fontFamily: 'latoLight',
-    width: 95,
-    justifyContent: 'space-between',
-  },
-  noRoomsHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    fontFamily: 'latoBold',
-    alignSelf: 'center',
-  },
-});
-
-const groupRooms = {
-  F: 'FYSIK',
-  M1: 'MASKIN',
-  EG: 'EDIT',
-  KG: 'KEMI',
-  SB: 'SB',
-  Sv: 'SVEA',
-  Ju: 'JUPITER',
-};
-
-const timeHeader = {
-  sv: 'LEDIGT',
-  en: 'AVAILABLE',
-};
-
-const noRooms = {
-  sv: 'INGA LEDIGA GRUPPRUM',
-  en: 'NO AVAILABLE ROOMS',
-};
 
 const getSections = (events) => {
   const result = [];
@@ -147,7 +51,7 @@ class RoomListScreen extends Component {
       );
     }
     return (
-      <View style={styles.container}>
+      <View style={styles.roomListcontainer}>
         <Toast
           ref="toast" // eslint-disable-line
           style={{ backgroundColor: 'black', borderRadius: 10 }}

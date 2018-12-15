@@ -2,75 +2,14 @@ import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
 import React from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   TextInput,
   TouchableHighlight,
+  ActivityIndicator,
 } from 'react-native';
-import { PrimaryColor, White, LightGrey } from '../res/values/Styles';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: White,
-  },
-  headerContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 120,
-    marginBottom: 50,
-  },
-  inputContainer: {
-    borderColor: LightGrey,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
-    borderWidth: 1,
-    width: 250,
-    height: 45,
-    marginBottom: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  inputs: {
-    height: 45,
-    marginLeft: 16,
-    borderBottomColor: '#FFFFFF',
-    flex: 1,
-  },
-  inputIcon: {
-    width: 30,
-    height: 30,
-    marginLeft: 15,
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    height: 45,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    width: 250,
-    borderRadius: 30,
-  },
-  loginButton: {
-    backgroundColor: PrimaryColor,
-  },
-  headerText: {
-    fontSize: 40,
-    color: PrimaryColor,
-    fontFamily: 'montBold',
-  },
-  loginText: {
-    color: White,
-  },
-  errorText: {
-    color: 'red',
-  },
-});
+import { styles } from './utils/Styles';
+import { PrimaryColor } from '../res/values/Styles';
 
 class Login extends React.Component {
   constructor(props) {
@@ -81,6 +20,7 @@ class Login extends React.Component {
       username: '',
       usernameError: false,
       passwordError: false,
+      loading: false,
     };
   }
 
@@ -107,7 +47,7 @@ class Login extends React.Component {
   }
 
   render() {
-    const { usernameError, passwordError } = this.state;
+    const { usernameError, passwordError, loading } = this.state;
     return (
       <View style={styles.container}>
         <View style={styles.headerContainer}>
@@ -139,6 +79,13 @@ class Login extends React.Component {
           <Text style={styles.loginText}>Login</Text>
         </TouchableHighlight>
         <Text style={styles.errorText}>{(usernameError || passwordError) ? 'Invalid username or password' : ''}</Text>
+        {loading
+    && (
+    <View style={styles.loading}>
+      <ActivityIndicator size="large" color={PrimaryColor} />
+    </View>
+    )
+}
       </View>
     );
   }
