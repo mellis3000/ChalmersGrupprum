@@ -6,6 +6,8 @@ import {
   View,
   TextInput,
   TouchableHighlight,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { styles } from './utils/Styles';
 
@@ -50,39 +52,41 @@ class Login extends React.Component {
   render() {
     const { usernameError, passwordError } = this.state;
     return (
-      <View style={styles.loginContainer}>
-        <View style={[{ marginBottom: 50 }, styles.headerContainer]}>
-          <Text style={styles.headerText}>Chalmers</Text>
-          <Text style={styles.headerText}>Grupprum</Text>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.loginContainer}>
+          <View style={[{ marginBottom: 50 }, styles.headerContainer]}>
+            <Text style={styles.headerText}>Chalmers</Text>
+            <Text style={styles.headerText}>Grupprum</Text>
+          </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.inputs}
+              placeholder="CID"
+              keyboardType="default"
+              underlineColorAndroid="transparent"
+              onChangeText={usernameInput => this.setState({ username: usernameInput })}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.inputs}
+              placeholder="Password"
+              secureTextEntry
+              underlineColorAndroid="transparent"
+              onChangeText={passwordInput => this.setState({ password: passwordInput })}
+            />
+          </View>
+          <View style={{ height: 80 }}>
+            <TouchableHighlight
+              style={styles.loginButton}
+              onPress={() => this.onLogin()}
+            >
+              <Text style={styles.loginText}>Login</Text>
+            </TouchableHighlight>
+            <Text style={styles.errorText}>{(usernameError || passwordError) ? 'Invalid username or password' : ''}</Text>
+          </View>
         </View>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.inputs}
-            placeholder="CID"
-            keyboardType="default"
-            underlineColorAndroid="transparent"
-            onChangeText={usernameInput => this.setState({ username: usernameInput })}
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.inputs}
-            placeholder="Password"
-            secureTextEntry
-            underlineColorAndroid="transparent"
-            onChangeText={passwordInput => this.setState({ password: passwordInput })}
-          />
-        </View>
-        <View style={{ height: 80 }}>
-          <TouchableHighlight
-            style={styles.loginButton}
-            onPress={() => this.onLogin()}
-          >
-            <Text style={styles.loginText}>Login</Text>
-          </TouchableHighlight>
-          <Text style={styles.errorText}>{(usernameError || passwordError) ? 'Invalid username or password' : ''}</Text>
-        </View>
-      </View>
+      </TouchableWithoutFeedback>
     );
   }
 }

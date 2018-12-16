@@ -31,10 +31,11 @@ const authLink = setContext(async (req, { headers }) => {
   if (!token) {
     return { headers };
   }
+  console.log(token);
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : null,
+      Authorization: token ? `Bearer ${token}` : null,
     },
   };
 });

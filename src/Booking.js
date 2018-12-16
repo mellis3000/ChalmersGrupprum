@@ -71,9 +71,11 @@ class BookingScreen extends React.Component {
   }
 
   componentDidMount() {
-    const { startTimeInMin } = this.state;
-    const endTime = startTimeInMin + 240 > 60 * 23 ? 60 * 23 : startTimeInMin + 240;
-    this.setState({ multiSliderValue: [startTimeInMin, endTime] });
+    const { startTimeInMin, endTimeInMin } = this.state;
+    if (startTimeInMin + 240 < endTimeInMin) {
+      const endTime = startTimeInMin + 240 > 60 * 23 ? 60 * 23 : startTimeInMin + 240;
+      this.setState({ multiSliderValue: [startTimeInMin, endTime] });
+    }
   }
 
   multiSliderValuesChange = (values) => {
