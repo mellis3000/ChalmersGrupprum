@@ -7,7 +7,7 @@ import { HttpLink } from 'apollo-link-http';
 import { ApolloProvider } from 'react-apollo';
 import { setContext } from 'apollo-link-context';
 import {
-  signIn, getToken, loadAssetsAsync,
+  signIn, signOut, getToken, loadAssetsAsync,
 } from './utils/Utils';
 import HomeScreen from './Home';
 import RoomListScreen from './RoomList';

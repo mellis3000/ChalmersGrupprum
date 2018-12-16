@@ -27,7 +27,7 @@ const getDateString = (date) => {
   return `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}`;
 };
 const getClosestQuarterInMinutes = (minutes) => {
-  const wholeQuarters = Math.floor(minutes / 15);
+  const wholeQuarters = Math.ceil(minutes / 15);
   const quartersInMinutes = wholeQuarters * 15;
   return quartersInMinutes;
 };
