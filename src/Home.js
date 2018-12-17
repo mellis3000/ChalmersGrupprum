@@ -136,7 +136,7 @@ class HomeScreen extends React.Component {
 
 
   componentDidMount() {
-    getLocale().then(language => this.setState({ language: language.substring(0, 2) }));
+    getLocale().then(language => this.setState({ language }));
     this.refreshEvents();
     this.getConnectionStatus();
   }

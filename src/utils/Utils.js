@@ -19,7 +19,12 @@ export const getDataFromUrlAsync = async () => {
   }
 };
 
-export const getLocale = async () => Expo.Localization.locale;
+export const getLocale = async () => {
+  if (Expo.Localization.locale === 'sv-SE') {
+    return 'sv';
+  }
+  return 'en';
+};
 
 export const parseIcal = async () => {
   const result = await getDataFromUrlAsync();
