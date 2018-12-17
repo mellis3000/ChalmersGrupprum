@@ -13,6 +13,9 @@ import HomeScreen from './Home';
 import RoomListScreen from './RoomList';
 import BookingScreen from './Booking';
 import Login from './Login';
+import {
+  PrimaryColor,
+} from '../res/values/Styles';
 
 const { AppLoading } = Expo;
 
@@ -49,22 +52,56 @@ const client = new ApolloClient({
 
 const AppNavigator = createStackNavigator({
   Home: { screen: HomeScreen },
-  RoomList: { screen: RoomListScreen },
-  Booking: { screen: BookingScreen },
+  RoomList: {
+    screen: RoomListScreen,
+    navigationOptions: {
+      title: '',
+      headerTintColor: PrimaryColor,
+    },
+  },
+  Booking: {
+    screen: BookingScreen,
+    navigationOptions: {
+      title: '',
+      headerTintColor: PrimaryColor,
+    },
+  },
   Login: { screen: Login },
 },
 {
   initialRouteName: 'Home',
+  headerLayoutPreset: 'left',
+  defaultNavigationOptions: {
+    title: '',
+    headerTintColor: PrimaryColor,
+  },
 });
 
 const AppLoginNavigator = createStackNavigator({
   Login: { screen: Login },
   Home: { screen: HomeScreen },
-  RoomList: { screen: RoomListScreen },
-  Booking: { screen: BookingScreen },
+  RoomList: {
+    screen: RoomListScreen,
+    navigationOptions: {
+      title: '',
+      headerTintColor: PrimaryColor,
+    },
+  },
+  Booking: {
+    screen: BookingScreen,
+    navigationOptions: {
+      title: '',
+      headerTintColor: PrimaryColor,
+    },
+  },
 },
 {
   initialRouteName: 'Login',
+  headerLayoutPreset: 'left',
+  defaultNavigationOptions: {
+    title: '',
+    headerTintColor: PrimaryColor,
+  },
 });
 
 export default class App extends React.Component {
