@@ -1,5 +1,6 @@
 import { createStackNavigator } from 'react-navigation';
 import React from 'react';
+import { Image } from 'react-native';
 import * as Expo from 'expo';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -7,7 +8,7 @@ import { HttpLink } from 'apollo-link-http';
 import { ApolloProvider } from 'react-apollo';
 import { setContext } from 'apollo-link-context';
 import {
-  signIn, signOut, getToken, loadAssetsAsync,
+  signIn, getToken, loadAssetsAsync,
 } from './utils/Utils';
 import HomeScreen from './Home';
 import RoomListScreen from './RoomList';
@@ -16,6 +17,9 @@ import Login from './Login';
 import {
   PrimaryColor,
 } from '../res/values/Styles';
+
+
+const ArrowIcon = require('../res/img/right-arrow.png');
 
 const { AppLoading } = Expo;
 
@@ -50,58 +54,56 @@ const client = new ApolloClient({
   cache,
 });
 
+const navigationOptions = {
+  headerTintColor: PrimaryColor,
+  headerBackImage: (<Image
+    source={ArrowIcon}
+    style={{
+      height: 20,
+      width: 20,
+      resizeMode: 'contain',
+      transform: [{ rotate: '180deg' }],
+    }}
+  />),
+  headerBackTitle: 'Back',
+};
+
 const AppNavigator = createStackNavigator({
-  Home: { screen: HomeScreen },
+  Home: {
+    screen: HomeScreen,
+    navigationOptions,
+  },
   RoomList: {
     screen: RoomListScreen,
-    navigationOptions: {
-      title: '',
-      headerTintColor: PrimaryColor,
-    },
+    navigationOptions,
   },
   Booking: {
     screen: BookingScreen,
-    navigationOptions: {
-      title: '',
-      headerTintColor: PrimaryColor,
-    },
+    navigationOptions,
   },
   Login: { screen: Login },
 },
 {
   initialRouteName: 'Home',
-  headerLayoutPreset: 'left',
-  defaultNavigationOptions: {
-    title: '',
-    headerTintColor: PrimaryColor,
-  },
 });
 
 const AppLoginNavigator = createStackNavigator({
   Login: { screen: Login },
-  Home: { screen: HomeScreen },
+  Home: {
+    screen: HomeScreen,
+    navigationOptions,
+  },
   RoomList: {
     screen: RoomListScreen,
-    navigationOptions: {
-      title: '',
-      headerTintColor: PrimaryColor,
-    },
+    navigationOptions,
   },
   Booking: {
     screen: BookingScreen,
-    navigationOptions: {
-      title: '',
-      headerTintColor: PrimaryColor,
-    },
+    navigationOptions,
   },
 },
 {
   initialRouteName: 'Login',
-  headerLayoutPreset: 'left',
-  defaultNavigationOptions: {
-    title: '',
-    headerTintColor: PrimaryColor,
-  },
 });
 
 export default class App extends React.Component {
