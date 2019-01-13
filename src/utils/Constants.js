@@ -49,8 +49,16 @@ export const noRooms = {
 };
 
 export const bookingFailed = {
-  sv: 'Rummet kunde inte bokas',
-  en: 'Booking could not be made',
+  sv: {
+    generalError: 'Rummet kunde inte bokas',
+    dateError: 'Rum kan endast bokas inom 2 veckor',
+    maxBookingsError: 'Du har redan maximalt antal bokningar',
+  },
+  en: {
+    generalError: 'Booking could not be made',
+    dateError: 'Rooms may only be booked two weeks in advance',
+    maxBookingsError: 'You have reached the maximum amount of bookings',
+  },
 };
 
 export const bookingSucceeded = {
