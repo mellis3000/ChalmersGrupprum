@@ -24,7 +24,9 @@ const convertTimestamptoMinutes = time => parseInt(time.split(':')[0], 0) * 60 +
 
 const getDateString = (date) => {
   const newDate = new Date(date);
-  return `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}`;
+  const month = `${newDate.getMonth() + 1 > 9 ? newDate.getMonth() + 1 : `0${newDate.getMonth() + 1}`}`;
+  const day = `${newDate.getDate() > 9 ? newDate.getDate() : `0${newDate.getDate()}`}`;
+  return `${newDate.getFullYear()}${month}${day}`;
 };
 const getClosestQuarterInMinutes = (minutes) => {
   const wholeQuarters = Math.ceil(minutes / 15);
@@ -112,6 +114,7 @@ class BookingScreen extends React.Component {
 
     try {
       this.setState({ loading: true, bookingButtonDisabled: true });
+      // console.log(booking);
       await book(booking.roomName, booking.date, booking.from, booking.to);
     } catch (e) {
       console.log(e);
