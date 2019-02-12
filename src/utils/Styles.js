@@ -190,7 +190,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: Red,
     fontFamily: 'montBold',
-    alignSelf: 'center',
+    textAlign: 'center',
   },
   successText: {
     fontSize: 20,

@@ -24,7 +24,9 @@ const convertTimestamptoMinutes = time => parseInt(time.split(':')[0], 0) * 60 +
 
 const getDateString = (date) => {
   const newDate = new Date(date);
-  return `${newDate.getFullYear()}${newDate.getMonth() + 1}${newDate.getDate()}`;
+  const month = `${newDate.getMonth() + 1 > 9 ? newDate.getMonth() + 1 : `0${newDate.getMonth() + 1}`}`;
+  const day = `${newDate.getDate() > 9 ? newDate.getDate() : `0${newDate.getDate()}`}`;
+  return `${newDate.getFullYear()}${month}${day}`;
 };
 const getClosestQuarterInMinutes = (minutes) => {
   const wholeQuarters = Math.ceil(minutes / 15);
@@ -64,7 +66,7 @@ class BookingScreen extends React.Component {
       endTimeInMin: adjustTime(item.split(' ')[3]),
       multiSliderValue: [adjustTime(item.split(' ')[1]), adjustTime(item.split(' ')[3])],
       bookingButtonDisabled: false,
-      error: false,
+      error: '',
       successfullyBooked: false,
       loading: false,
     };
@@ -99,7 +101,7 @@ class BookingScreen extends React.Component {
 
   async makeBooking() {
     const {
-      date, room, multiSliderValue,
+      date, room, multiSliderValue, language,
     } = this.state;
     const { book } = this.props;
 
@@ -114,8 +116,15 @@ class BookingScreen extends React.Component {
       this.setState({ loading: true, bookingButtonDisabled: true });
       await book(booking.roomName, booking.date, booking.from, booking.to);
     } catch (e) {
-      console.log(e);
-      this.setState({ error: true, loading: false });
+      let message = '';
+      if (e.message.includes('datum')) {
+        message = bookingFailed[language].dateError;
+      } else if (e.message.includes('bokningsantal')) {
+        message = bookingFailed[language].maxBookingsError;
+      } else {
+        message = bookingFailed[language].generalError;
+      }
+      this.setState({ error: message, loading: false });
       return false;
     }
     return true;
@@ -124,7 +133,7 @@ class BookingScreen extends React.Component {
   handleFeedback() {
     const { navigation } = this.props; // eslint-disable-line
     const { error } = this.state;
-    if (!error) {
+    if (error === '') {
       this.setState({
         successfullyBooked: true,
         loading: false,
@@ -199,9 +208,14 @@ class BookingScreen extends React.Component {
               {bookingTitle[language]}
             </Text>
           </TouchableOpacity>
-          <View style={{ width: '100%', height: 16 }}>
-            <Text style={styles.errorText}>
-              {error ? bookingFailed[language] : ''}
+          <View style={{
+            width: '95%',
+            height: 50,
+            alignItems: 'center',
+          }}
+          >
+            <Text numberOfLines={2} style={styles.errorText}>
+              {error}
             </Text>
             <Text style={styles.successText}>
               {successfullyBooked ? bookingSucceeded[language] : ''}

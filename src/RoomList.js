@@ -35,13 +35,28 @@ const sortEvents = events => Object.keys(events).reduce((obj, e) => {
 }, {});
 
 class RoomListScreen extends Component {
+  constructor(props) {
+    super(props);
+
+    const { navigation } = this.props; // eslint-disable-line
+    const { events } = navigation.state.params;
+    const sortedEvents = Object.keys(events).length !== 0 ? sortEvents(events) : {};
+
+    this.state = {
+      events,
+      sortedEvents,
+    };
+  }
+
   render() {
     const { navigation } = this.props; // eslint-disable-line
     const { navigate } = navigation;
     const {
-      events, language, date, refresh,
+      language, date, refresh,
     } = navigation.state.params;
-    const sortedEvents = sortEvents(events);
+    const {
+      events, sortedEvents,
+    } = this.state;
     if (Object.keys(events).length === 0) {
       return (
         <View style={styles.container}>

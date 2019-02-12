@@ -1,5 +1,6 @@
 import { createStackNavigator } from 'react-navigation';
 import React from 'react';
+import { Image } from 'react-native';
 import * as Expo from 'expo';
 import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
@@ -13,6 +14,12 @@ import HomeScreen from './Home';
 import RoomListScreen from './RoomList';
 import BookingScreen from './Booking';
 import Login from './Login';
+import {
+  PrimaryColor,
+} from '../res/values/Styles';
+
+
+const ArrowIcon = require('../res/img/right-arrow.png');
 
 const { AppLoading } = Expo;
 
@@ -47,10 +54,32 @@ const client = new ApolloClient({
   cache,
 });
 
+const navigationOptions = {
+  headerTintColor: PrimaryColor,
+  headerBackImage: (<Image
+    source={ArrowIcon}
+    style={{
+      height: 20,
+      width: 20,
+      resizeMode: 'contain',
+      transform: [{ rotate: '180deg' }],
+    }}
+  />),
+};
+
 const AppNavigator = createStackNavigator({
-  Home: { screen: HomeScreen },
-  RoomList: { screen: RoomListScreen },
-  Booking: { screen: BookingScreen },
+  Home: {
+    screen: HomeScreen,
+    navigationOptions,
+  },
+  RoomList: {
+    screen: RoomListScreen,
+    navigationOptions,
+  },
+  Booking: {
+    screen: BookingScreen,
+    navigationOptions,
+  },
   Login: { screen: Login },
 },
 {
@@ -59,9 +88,18 @@ const AppNavigator = createStackNavigator({
 
 const AppLoginNavigator = createStackNavigator({
   Login: { screen: Login },
-  Home: { screen: HomeScreen },
-  RoomList: { screen: RoomListScreen },
-  Booking: { screen: BookingScreen },
+  Home: {
+    screen: HomeScreen,
+    navigationOptions,
+  },
+  RoomList: {
+    screen: RoomListScreen,
+    navigationOptions,
+  },
+  Booking: {
+    screen: BookingScreen,
+    navigationOptions,
+  },
 },
 {
   initialRouteName: 'Login',
@@ -93,7 +131,7 @@ export default class App extends React.Component {
     if (loggedIn) {
       signIn(jwt);
     } else {
-      // signOut();
+      signOut();
     }
   };
 

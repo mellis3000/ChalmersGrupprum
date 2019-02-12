@@ -136,7 +136,7 @@ class HomeScreen extends React.Component {
 
 
   componentDidMount() {
-    getLocale().then(language => this.setState({ language: language.substring(0, 2) }));
+    getLocale().then(language => this.setState({ language }));
     this.refreshEvents();
     this.getConnectionStatus();
   }
@@ -178,7 +178,6 @@ class HomeScreen extends React.Component {
           }
           roomEvents[key] = setFreeInterval(roomEvents[key], time, bookings);
         }
-
         if (roomEvents[key]) {
           if (!this.fulfillsMinimumDuration(roomEvents[key].freeFrom, roomEvents[key].freeUntil)) {
             delete roomEvents[key];
@@ -212,16 +211,16 @@ class HomeScreen extends React.Component {
   }
 
   fulfillsMinimumDuration(start, end) {
+    const { date } = this.state;
     const now = new Date();
     const nowInMinutes = now.getHours() * 60 + now.getMinutes();
-    const startTimeInMinutes = parseInt(start.split(':')[0], 0) * 60 + parseInt(start.split(':')[1], 0);
+    const chosenTimeInMinutes = date.getHours() * 60 + date.getMinutes();
     const endTimeInMinutes = parseInt(end.split(':')[0], 0) * 60 + parseInt(end.split(':')[1], 0);
 
     const { minDuration } = this.state;
-
-    return nowInMinutes > startTimeInMinutes
-      ? (endTimeInMinutes - nowInMinutes) > minDuration
-      : (endTimeInMinutes - startTimeInMinutes) > minDuration;
+    return (isToday(date) && (nowInMinutes >= chosenTimeInMinutes))
+      ? (endTimeInMinutes - nowInMinutes) >= minDuration
+      : (endTimeInMinutes - chosenTimeInMinutes) >= minDuration;
   }
 
 
