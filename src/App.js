@@ -65,7 +65,6 @@ const navigationOptions = {
       transform: [{ rotate: '180deg' }],
     }}
   />),
-  headerBackTitle: 'Back',
 };
 
 const AppNavigator = createStackNavigator({

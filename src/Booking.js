@@ -114,11 +114,9 @@ class BookingScreen extends React.Component {
 
     try {
       this.setState({ loading: true, bookingButtonDisabled: true });
-      // console.log(booking);
       await book(booking.roomName, booking.date, booking.from, booking.to);
     } catch (e) {
       let message = '';
-      console.log(e.message);
       if (e.message.includes('datum')) {
         message = bookingFailed[language].dateError;
       } else if (e.message.includes('bokningsantal')) {
